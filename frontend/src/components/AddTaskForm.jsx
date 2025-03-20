@@ -100,7 +100,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
           name="priority"
           value={task.priority}
           onChange={handleChange}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
         >
           <option value="High">High</option>
           <option value="Medium">Medium</option>
@@ -147,7 +147,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
           name="recurrence"
           value={task.recurrence}
           onChange={handleChange}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
         >
           <option value="Daily">Daily</option>
           <option value="Weekly">Weekly</option>
@@ -159,7 +159,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
       {/* Submit Button */}
       <button
         type="submit"
-        className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
       >
         Add Task
       </button>

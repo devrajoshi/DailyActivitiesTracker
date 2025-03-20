@@ -15,9 +15,52 @@ const getUsers = async (req, res) => {
   }
 };
 
+// GET /api/users/me - Fetch the authenticated user's details
+const getSpecificUser = async (req, res) => {
+  try {
+    // The user object is already attached to the request by the protect middleware
+    const user = req.user;
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send the user details as a response
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    res
+      .status(500)
+      .json({ message: "Server error while fetching user details" });
+  }
+};
+
+const updateSpecificUser = async (req, res) => {
+  try {
+    const { name, username, email, country } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, username, email, country },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user details:", error);
+    res
+      .status(500)
+      .json({ message: "Server error while updating user details" });
+  }
+};
+
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, timezone } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
@@ -74,4 +117,10 @@ const loginUser = async (req, res) => {
   }
 };
 
-export { getUsers, registerUser, loginUser };
+export {
+  getUsers,
+  getSpecificUser,
+  updateSpecificUser,
+  registerUser,
+  loginUser,
+};

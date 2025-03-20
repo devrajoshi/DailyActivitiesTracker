@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { isAuthenticated, logout } from "../utils/auth";
+import LogoutModal from "./LogoutModal"; // Import the LogoutModal component
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const navigate = useNavigate();
 
   // Toggle mobile menu
   const toggleMenu = () => {
@@ -36,6 +39,12 @@ const Navbar = () => {
     }
   }, [isDarkMode]);
 
+  // Handle Logout
+  const handleLogout = () => {
+      logout(); // Clear token and log out the user
+      navigate("/login"); // Redirect to login page
+  };
+
   return (
     <nav className="bg-indigo-600 shadow-md dark:bg-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -50,33 +59,76 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation Links (Desktop View) */}
           <div className="hidden md:flex space-x-4">
-            <Link
-              to="/"
-              className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
-            >
-              Home
-            </Link>
-            <Link
-              to="/register"
-              className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
-            >
-              Register
-            </Link>
-            <Link
-              to="/login"
-              className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
-            >
-              Login
-            </Link>
+            {isAuthenticated() ? (
+              <>
+                <Link
+                  to="/activities"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  Activities
+                </Link>
+                <Link
+                  to="/history"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  History
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  Home
+                </Link>
+                <Link
+                  to="/register"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  Register
+                </Link>
+                <Link
+                  to="/login"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  Login
+                </Link>
+              </>
+            )}
           </div>
 
-          {/* Dark Mode Toggle */}
-          <div className="flex items-center">
+          {/* Right aligned icons (Profile Icon and Dark Mode Toggle) */}
+          <div className="flex items-center space-x-4">
+            {/* Profile Icon */}
+            {isAuthenticated() && (
+              <Link
+                to="/profile"
+                className="text-white hover:bg-indigo-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  />
+                </svg>
+              </Link>
+            )}
+
+            {/* Dark Mode Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="mr-4 p-2 rounded-full bg-indigo-500 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:hover:bg-gray-600"
+              className="p-2 rounded-full bg-indigo-500 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-700 dark:hover:bg-gray-600 cursor-pointer"
             >
               {isDarkMode ? (
                 <svg
@@ -111,12 +163,15 @@ const Navbar = () => {
               )}
             </button>
 
+            {/* Logout Modal */}
+            {isAuthenticated() && <LogoutModal onLogout={handleLogout} />}
+
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">
               <button
                 type="button"
                 onClick={toggleMenu}
-                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white dark:text-gray-100 dark:hover:bg-gray-700"
+                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white dark:text-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 aria-controls="mobile-menu"
                 aria-expanded="false"
               >
@@ -160,24 +215,51 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          <Link
-            to="/"
-            className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
-          >
-            Home
-          </Link>
-          <Link
-            to="/register"
-            className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
-          >
-            Register
-          </Link>
-          <Link
-            to="/login"
-            className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
-          >
-            Login
-          </Link>
+          {isAuthenticated() ? (
+            <>
+              <Link
+                to="/activities"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                Activities
+              </Link>
+              <Link
+                to="/history"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                History
+              </Link>
+              <Link
+                to="/profile"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                Profile
+              </Link>
+              {/* Logout Modal */}
+            {isAuthenticated() && <LogoutModal onLogout={handleLogout} />}
+            </>
+          ) : (
+            <>
+              <Link
+                to="/"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                Home
+              </Link>
+              <Link
+                to="/register"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                Register
+              </Link>
+              <Link
+                to="/login"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+              >
+                Login
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

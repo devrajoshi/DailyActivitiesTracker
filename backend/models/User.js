@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema(
       minlength: [6, "Password must be at least 6 characters"],
       select: false, // Exclude password from query results by default
     },
+    profilePictureUrl: { type: String }, // Store the profile picture URL
+    country: {
+      type: String,
+      required: [true, "Country is required"],
+      trim: true,
+    },
   },
   { timestamps: true } // Automatically manages `created_at` and `updated_at`
 );

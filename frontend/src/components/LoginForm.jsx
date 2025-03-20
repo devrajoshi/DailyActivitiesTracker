@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -21,19 +21,44 @@ const LoginForm = () => {
   const {
     register,
     handleSubmit,
+    setValue, // Used to set values for autofill
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
   });
 
+  // Retrieve pre-filled email and password from session storage
+  useEffect(() => {
+    const preFilledEmail = sessionStorage.getItem("preFilledEmail");
+    const preFilledPassword = sessionStorage.getItem("preFilledPassword");
+
+    if (preFilledEmail && preFilledPassword) {
+      setValue("email", preFilledEmail); // Autofill email
+      setValue("password", preFilledPassword); // Autofill password
+
+      // Clear session storage after autofilling
+      sessionStorage.removeItem("preFilledEmail");
+      sessionStorage.removeItem("preFilledPassword");
+    }
+  }, [setValue]);
+
   const onSubmit = async (data) => {
     try {
+      // Send login request to the server
       const response = await axios.post("http://localhost:5000/api/users/login", data);
-      localStorage.setItem("token", response.data.token); // Save the token
+
+      // Save the token to localStorage
+      localStorage.setItem("token", response.data.token);
+
+      // Show success toast
       toast.success("Login successful!");
-      window.location.href = "/dashboard"; // Redirect to dashboard
-      console.log(response.data);
+
+      // Delay redirection to allow the toast to display
+      setTimeout(() => {
+        window.location.href = "/activities"; // Redirect to activities
+      }, 1000); // 1-second delay
     } catch (error) {
+      // Handle login failure
       toast.error(error.response?.data?.message || "Login failed");
     }
   };
@@ -41,6 +66,7 @@ const LoginForm = () => {
   return (
     <AuthLayout title="Login">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Email Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Email
@@ -48,14 +74,16 @@ const LoginForm = () => {
           <input
             type="email"
             {...register("email")}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+            autoComplete="email" // Autocomplete for email
+            className={`mt-1 block w-full px-3 py-2 border ${errors.email ? "border-red-500" : "border-gray-300"
+              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.email && (
             <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
           )}
         </div>
+
+        {/* Password Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Password
@@ -63,9 +91,9 @@ const LoginForm = () => {
           <input
             type="password"
             {...register("password")}
-            className={`mt-1 block w-full px-3 py-2 border ${
-              errors.password ? "border-red-500" : "border-gray-300"
-            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+            autoComplete="current-password" // Autocomplete for login password
+            className={`mt-1 block w-full px-3 py-2 border ${errors.password ? "border-red-500" : "border-gray-300"
+              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.password && (
             <p className="mt-2 text-sm text-red-600">
@@ -73,12 +101,16 @@ const LoginForm = () => {
             </p>
           )}
         </div>
+
+        {/* Submit Button */}
         <button
           type="submit"
-          className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
         >
           Login
         </button>
+
+        {/* Link to Register Page */}
         <p className="text-sm text-center text-gray-600">
           Don't have an account?{" "}
           <a
