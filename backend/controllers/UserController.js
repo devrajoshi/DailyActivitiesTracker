@@ -143,9 +143,9 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Debugging logs (temporary - remove in production)
-    console.log("Stored hash:", user.password);
-    console.log("Input password:", password);
+    // // Debugging logs (temporary - remove in production)
+    // console.log("Stored hash:", user.password);
+    // console.log("Input password:", password);
 
     // Direct bcrypt comparison (bypassing model method for debugging)
     const isMatch = await bcrypt.compare(password, user.password);

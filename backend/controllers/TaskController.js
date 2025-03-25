@@ -14,11 +14,23 @@ const createTask = async (req, res) => {
       });
     }
 
-    // Ensure start_time is before end_time
-    if (new Date(start_time) >= new Date(end_time)) {
+    // Validate time format (HH:mm)
+    const timeRegex = /^\d{2}:\d{2}$/;
+    if (!timeRegex.test(start_time) || !timeRegex.test(end_time)) {
       return res.status(400).json({
-        message:
-          "Time is overlapping with other tasks. You have other tasks to do at this time interval.",
+        message: "Invalid time format. Use HH:mm (e.g., 08:00)",
+      });
+    }
+
+    // Convert start_time and end_time to Date objects with today's date
+    const today = new Date().toISOString().split("T")[0]; // e.g., "2025-03-22"
+    const newStartTime = new Date(`${today}T${start_time}:00Z`);
+    const newEndTime = new Date(`${today}T${end_time}:00Z`);
+
+    // Validate that end_time is after start_time
+    if (newEndTime <= newStartTime) {
+      return res.status(400).json({
+        message: "End time must be after start time.",
       });
     }
 
@@ -27,14 +39,8 @@ const createTask = async (req, res) => {
       user_id: req.user._id,
       $or: [
         {
-          start_time: { $lt: end_time },
-          end_time: { $gt: start_time },
-        },
-        {
-          start_time: { $gte: start_time, $lt: end_time },
-        },
-        {
-          end_time: { $gt: start_time, $lte: end_time },
+          start_time: { $lt: newEndTime },
+          end_time: { $gt: newStartTime },
         },
       ],
     });
@@ -51,8 +57,8 @@ const createTask = async (req, res) => {
       name,
       description,
       priority,
-      start_time,
-      end_time,
+      start_time: newStartTime,
+      end_time: newEndTime,
       recurrence,
     });
 
@@ -60,63 +66,86 @@ const createTask = async (req, res) => {
     res.status(201).json(newTask);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
 const getTasks = async (req, res) => {
   try {
-    // Access the user's ID from req.user._id
+    // Ensure the user is authenticated
+    if (!req.user || !req.user._id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: User not authenticated" });
+    }
+
+    // Fetch tasks for the authenticated user
     const tasks = await Task.find({ user_id: req.user._id }).sort({
       created_at: -1,
     });
-    res.status(200).json(tasks);
+
+    return res.status(200).json(tasks);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error in getTasks:", err);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
   }
 };
 
 const updateTask = async (req, res) => {
   try {
-    const { _id } = req.params; // Correct destructuring
+    const { _id } = req.params;
     const { name, description, priority, start_time, end_time, recurrence } =
       req.body;
 
-    // console.log("Received task ID:", _id); // debugging
-    // console.log("Request body:", req.body);
-
-    // Validate taskId format
+    // Validate task ID format
     if (!mongoose.Types.ObjectId.isValid(_id)) {
-      console.error("Invalid task ID format:", _id);
       return res.status(400).json({ message: "Invalid task ID" });
     }
 
     // Check if task exists
-    const taskExists = await Task.findById(_id);
-    if (!taskExists) {
-      console.error("Task not found for ID:", _id);
+    const existingTask = await Task.findById(_id);
+    if (!existingTask) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Convert start_time and end_time to Date objects with today's date
-    const today = new Date().toISOString().split("T")[0]; // e.g., "2025-03-22"
-    const newStartTime = new Date(`${today}T${start_time}:00Z`);
-    const newEndTime = new Date(`${today}T${end_time}:00Z`);
+    // Validate time inputs (HH:mm format)
+    const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(start_time) || !timeRegex.test(end_time)) {
+      return res
+        .status(400)
+        .json({ message: "Invalid time format. Use HH:mm" });
+    }
 
-    // Validate that end_time is after start_time
+    // Create Date objects with original task's date but new times
+    const originalStart = existingTask.start_time;
+    const newStartTime = new Date(originalStart);
+    const [startHours, startMinutes] = start_time.split(":").map(Number);
+    newStartTime.setHours(startHours, startMinutes, 0, 0);
+
+    const originalEnd = existingTask.end_time;
+    const newEndTime = new Date(originalEnd);
+    const [endHours, endMinutes] = end_time.split(":").map(Number);
+    newEndTime.setHours(endHours, endMinutes, 0, 0);
+
+    // Validate time logic
     if (newEndTime <= newStartTime) {
       return res.status(400).json({
-        message:
-          "You have another task to do at this time interval. Please pick your free time for this task.",
+        message: "End time must be after start time",
       });
     }
 
-    // Check for overlapping tasks (excluding the current task)
-    const userId = taskExists.user_id; // Get the user_id from the existing task
+    // Check for overlapping tasks (same day only)
+    const startOfDay = new Date(newStartTime);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(newStartTime);
+    endOfDay.setHours(23, 59, 59, 999);
+
     const overlappingTasks = await Task.find({
-      user_id: userId,
-      _id: { $ne: _id }, // Exclude the task being updated
+      user_id: existingTask.user_id,
+      _id: { $ne: _id },
+      start_time: { $gte: startOfDay, $lte: endOfDay },
       $or: [
         {
           start_time: { $lt: newEndTime },
@@ -126,38 +155,59 @@ const updateTask = async (req, res) => {
     });
 
     if (overlappingTasks.length > 0) {
-      console.error("Time overlap detected with tasks:", overlappingTasks);
+      const formattedOverlaps = overlappingTasks.map((task) => ({
+        name: task.name,
+        time: `${task.start_time.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })} - ${task.end_time.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}`,
+      }));
       return res.status(400).json({
-        message: "Task time overlaps with an existing task",
-        overlappingTasks: overlappingTasks.map((task) => ({
-          _id: task._id,
-          name: task.name,
-          start_time: task.start_time,
-          end_time: task.end_time,
-        })),
+        message: "Time overlaps with existing tasks",
+        overlaps: formattedOverlaps,
       });
     }
 
-    // Prepare updated data
-    const updatedData = {
-      name,
-      description,
-      priority,
-      start_time: newStartTime,
-      end_time: newEndTime,
-      recurrence,
-    };
+    // Update the task (preserve original date, update times)
+    const updatedTask = await Task.findByIdAndUpdate(
+      _id,
+      {
+        name,
+        description,
+        priority,
+        start_time: newStartTime,
+        end_time: newEndTime,
+        recurrence,
+      },
+      { new: true, runValidators: true }
+    );
 
-    // Update the task
-    const updatedTask = await Task.findByIdAndUpdate(_id, updatedData, {
-      new: true,
-      runValidators: true,
+    // Format the response times for display
+    const responseTask = updatedTask.toObject();
+    responseTask.start_time = updatedTask.start_time.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    responseTask.end_time = updatedTask.end_time.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
-    res.status(200).json(updatedTask);
+    return res.status(200).json({
+      success: true,
+      task: responseTask,
+      message: "Task updated successfully",
+    });
   } catch (error) {
     console.error("Error updating task:", error);
-    res.status(500).json({ message: "Server error while updating task" });
+    return res.status(500).json({
+      success: false,
+      message: "Server error while updating task",
+      error: error.message,
+    });
   }
 };
 

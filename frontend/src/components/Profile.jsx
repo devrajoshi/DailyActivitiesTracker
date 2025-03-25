@@ -121,13 +121,17 @@ const Profile = () => {
   // Handle Change Password form submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate new password and confirmation
     if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
       return toast.error("New password and confirmation do not match");
     }
 
     try {
       const token = localStorage.getItem("token");
-      await axios.put(
+
+      // Send password change request to the backend
+      const response = await axios.put(
         "http://localhost:5000/api/users/profile/change-password",
         {
           currentPassword: passwordFormData.currentPassword,
@@ -138,20 +142,38 @@ const Profile = () => {
         }
       );
 
+      // Reset form data
       setPasswordFormData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+
+      // Close the modal
       setIsPasswordModalOpen(false);
+
+      // Show success toast
       toast.success("Password changed successfully!");
-      // Example (React/Next.js)
+
+      // Check if re-login is required
       if (response.data.requireReLogin) {
-        localStorage.removeItem("token"); // Clear old token
-        redirect("/login"); // Force fresh login
+        // Show logout notification
+        toast.info(
+          "Your account is being logged out for security reasons... \n Please login with the new password."
+        );
+
+        // Clear token from localStorage
+        localStorage.removeItem("token");
+
+        // Redirect to login page after a short delay
+        setTimeout(() => {
+          window.location.href = "/login"; // Force full-page reload
+        }, 4000); // Delay for 2 seconds to allow the user to read the toast message
       }
     } catch (error) {
       console.error("Error changing password:", error);
+
+      // Show error toast
       toast.error(error.response?.data?.message || "Failed to change password");
     }
   };

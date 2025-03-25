@@ -25,7 +25,6 @@ const Activities = () => {
       const response = await axios.get("http://localhost:5000/api/tasks", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Fetched tasks:", response.data); // Debug API response
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -38,9 +37,8 @@ const Activities = () => {
     fetchTasks();
   }, []);
 
-  // Helper function to format time for display
+  // Helper function to format time
   const formatTime = (isoDate) => {
-    if (!isoDate) return "N/A";
     const date = new Date(isoDate);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
@@ -78,7 +76,7 @@ const Activities = () => {
       start_time: formatDateTimeLocal(task.start_time),
       end_time: formatDateTimeLocal(task.end_time),
     };
-    console.log("Editing task with ID:", task._id, formattedTask); // Debugging
+    // console.log("Editing task with ID:", task._id, formattedTask); // Debugging
     setSelectedTask(formattedTask); // Pass the formatted task to edit
     setIsModalOpen(true);
   };
@@ -108,20 +106,20 @@ const Activities = () => {
                 );
                 toast.dismiss();
                 toast.success("Task deleted successfully!");
-                fetchTasks();
+                fetchTasks(); // Refresh the task list
               } catch (error) {
                 console.error("Error deleting task:", error);
                 toast.dismiss();
                 toast.error("Failed to delete task");
               }
             }}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition  cursor-pointer"
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition cursor-pointer"
           >
             Yes
           </button>
           <button
             onClick={() => toast.dismiss()}
-            className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition  cursor-pointer"
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition cursor-pointer"
           >
             No
           </button>
@@ -212,7 +210,7 @@ const Activities = () => {
       {/* Floating Action Button */}
       <button
         onClick={openAddModal}
-        className="fixed bottom-16 right-16 w-20 h-20 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 transition duration-300 ease-in-out cursor-pointer"
+        className="fixed bottom-16 right-16 w-20 h-20 bg-indigo-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-indigo-700 hover:scale-105 transition duration-300 ease-in-out cursor-pointer"
       >
         <span className="text-3xl">+</span>
       </button>

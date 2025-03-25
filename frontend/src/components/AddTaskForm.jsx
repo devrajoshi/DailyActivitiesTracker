@@ -8,18 +8,30 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
     name: task?.name || "",
     description: task?.description || "",
     priority: task?.priority || "Medium",
-    start_time: task?.start_time || "",
-    end_time: task?.end_time || "",
+    start_time: task?.start_time || "", // Pre-fill start_time
+    end_time: task?.end_time || "", // Pre-fill end_time
     recurrence: task?.recurrence || "Daily",
   });
 
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+
+    // Validate time inputs to prevent NaN:NaN errors
+    if (
+      (name === "start_time" || name === "end_time") &&
+      value.match(/^\d{2}:\d{2}$/)
+    ) {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    } else if (name !== "start_time" && name !== "end_time") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   // Handle form submission
@@ -30,12 +42,7 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
       const token = localStorage.getItem("token");
 
       if (task) {
-        if (!task._id) {
-          console.error("Task ID is undefined:", task);
-          toast.error("Cannot update task: Invalid task ID");
-          return;
-        }
-        console.log("Updating task with ID:", task._id); // Debug
+        // Update an existing task
         await axios.put(
           `http://localhost:5000/api/tasks/${task._id}`,
           formData,
@@ -45,12 +52,14 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
         );
         toast.success("Task updated successfully!");
       } else {
-        await axios.post("http://localhost:5000/api/tasks", formData, {
+        // Create a new task
+        await axios.post(`http://localhost:5000/api/tasks`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Task added successfully!");
       }
 
+      // Reset the form state
       setFormData({
         name: "",
         description: "",
@@ -59,8 +68,14 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
         end_time: "",
         recurrence: "Daily",
       });
+
+      // Close the modal
       onClose();
-      if (onTaskAdded) onTaskAdded();
+
+      // Trigger the parent callback to refresh the task list
+      if (onTaskAdded) {
+        onTaskAdded();
+      }
     } catch (error) {
       console.error("Error submitting task:", error);
       if (error.response?.data?.message) {
