@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
@@ -45,7 +45,10 @@ const LoginForm = () => {
   const onSubmit = async (data) => {
     try {
       // Send login request to the server
-      const response = await axios.post("http://localhost:5000/api/users/login", data);
+      const response = await axios.post(
+        "http://localhost:5000/api/users/login",
+        data
+      );
 
       // Save the token to localStorage
       localStorage.setItem("token", response.data.token);
@@ -56,7 +59,7 @@ const LoginForm = () => {
       // Delay redirection to allow the toast to display
       setTimeout(() => {
         window.location.href = "/activities"; // Redirect to activities
-      }, 1000); // 1-second delay
+      }, 2000); // 1-second delay
     } catch (error) {
       // Handle login failure
       toast.error(error.response?.data?.message || "Login failed");
@@ -75,8 +78,9 @@ const LoginForm = () => {
             type="email"
             {...register("email")}
             autoComplete="email" // Autocomplete for email
-            className={`mt-1 block w-full px-3 py-2 border ${errors.email ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+            className={`mt-1 block w-full px-3 py-2 border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.email && (
             <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
@@ -92,8 +96,9 @@ const LoginForm = () => {
             type="password"
             {...register("password")}
             autoComplete="current-password" // Autocomplete for login password
-            className={`mt-1 block w-full px-3 py-2 border ${errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+            className={`mt-1 block w-full px-3 py-2 border ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.password && (
             <p className="mt-2 text-sm text-red-600">

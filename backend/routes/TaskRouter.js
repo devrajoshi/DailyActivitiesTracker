@@ -4,15 +4,15 @@ import {
   getTasks,
   updateTask,
   deleteTask,
-  markTaskAsCompleted,
-  getTaskHistory
+  // markTaskAsCompleted,
+  // getTaskHistory
 } from "../controllers/TaskController.js";
 
 const router = express.Router();
 
 router.route("/").get(getTasks).post(createTask);
-router.route("/:id").put(updateTask).delete(deleteTask);
-router.route("/:id/complete").post(markTaskAsCompleted);
-router.route("/history").get(getTaskHistory);
+router.route("/:_id").put(updateTask).delete(deleteTask);
+// router.route("/:id/complete").post(markTaskAsCompleted);
+// router.route("/history").get(getTaskHistory);
 
 export default router;

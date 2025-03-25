@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { isAuthenticated } from "../utils/auth";
-
+import TaskTrendChart from "./TaskTrendChart";
 const History = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,6 +85,10 @@ const History = () => {
       {/* History List */}
       <div>
         <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Task History</h2>
+
+        {/* Task Trend Chart */}
+        <TaskTrendChart />
+
         {tasks.length === 0 ? (
           <p className="text-center text-gray-500">No tasks found.</p>
         ) : (

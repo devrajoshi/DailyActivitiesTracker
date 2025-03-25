@@ -4,6 +4,12 @@ import bcrypt from "bcryptjs";
 // Define the User schema
 const userSchema = new mongoose.Schema(
   {
+    fullname: {
+      type: String,
+      required: [true, "Name is required"],
+      minlength: [6, "Name should be at least 6 characters"],
+      trim: true,
+    },
     username: {
       type: String,
       required: [true, "Username is required"],
@@ -28,19 +34,19 @@ const userSchema = new mongoose.Schema(
       select: false, // Exclude password from query results by default
     },
     profilePictureUrl: { type: String }, // Store the profile picture URL
-    country: {
-      type: String,
-      required: [true, "Country is required"],
-      trim: true,
-    },
   },
-  { timestamps: true } // Automatically manages `created_at` and `updated_at`
+  { timestamps: true } // Automatically manages `createdAt` and `updatedAt`
 );
 
 // Middleware to hash the password before saving
 userSchema.pre("save", async function (next) {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified("password")) {
+    return next();
+  }
+
+  // Check for a custom flag to bypass hashing
+  if (this.skipPasswordHashing) {
     return next();
   }
 
@@ -55,11 +61,7 @@ userSchema.pre("save", async function (next) {
 
 // Method to compare passwords during login
 userSchema.methods.comparePassword = async function (candidatePassword) {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (error) {
-    throw error;
-  }
+  return bcrypt.compare(candidatePassword, this.password); // No try-catch needed
 };
 
 // Create and export the User model

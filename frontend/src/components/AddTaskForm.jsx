@@ -2,38 +2,56 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const AddTaskForm = ({ onClose, onTaskAdded }) => {
-  const [task, setTask] = useState({
-    name: "",
-    description: "",
-    priority: "Medium",
-    start_time: "",
-    end_time: "",
-    recurrence: "Daily",
+const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
+  // Initialize form state based on whether we're editing or adding a task
+  const [formData, setFormData] = useState({
+    name: task?.name || "",
+    description: task?.description || "",
+    priority: task?.priority || "Medium",
+    start_time: task?.start_time || "",
+    end_time: task?.end_time || "",
+    recurrence: task?.recurrence || "Daily",
   });
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setTask((prevTask) => ({
-      ...prevTask,
+    setFormData((prevData) => ({
+      ...prevData,
       [name]: value,
     }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/tasks", task, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
 
-      // Notify success
-      toast.success("Task added successfully!");
+      if (task) {
+        if (!task._id) {
+          console.error("Task ID is undefined:", task);
+          toast.error("Cannot update task: Invalid task ID");
+          return;
+        }
+        console.log("Updating task with ID:", task._id); // Debug
+        await axios.put(
+          `http://localhost:5000/api/tasks/${task._id}`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        toast.success("Task updated successfully!");
+      } else {
+        await axios.post("http://localhost:5000/api/tasks", formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success("Task added successfully!");
+      }
 
-      // Reset the form state
-      setTask({
+      setFormData({
         name: "",
         description: "",
         priority: "Medium",
@@ -41,20 +59,14 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
         end_time: "",
         recurrence: "Daily",
       });
-
-      // Close the modal
       onClose();
-
-      // Trigger the parent callback to refresh the task list
-      if (onTaskAdded) {
-        onTaskAdded();
-      }
+      if (onTaskAdded) onTaskAdded();
     } catch (error) {
-      console.error("Error adding task:", error);
+      console.error("Error submitting task:", error);
       if (error.response?.data?.message) {
         toast.error(error.response.data.message);
       } else {
-        toast.error("Failed to add task");
+        toast.error(task ? "Failed to update task" : "Failed to add task");
       }
     }
   };
@@ -69,7 +81,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
         <input
           type="text"
           name="name"
-          value={task.name}
+          value={formData.name}
           onChange={handleChange}
           placeholder="Enter task name"
           required
@@ -84,7 +96,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
         </label>
         <textarea
           name="description"
-          value={task.description}
+          value={formData.description}
           onChange={handleChange}
           placeholder="Enter task description"
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -98,7 +110,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
         </label>
         <select
           name="priority"
-          value={task.priority}
+          value={formData.priority}
           onChange={handleChange}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
         >
@@ -114,9 +126,9 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
           Start Time
         </label>
         <input
-          type="datetime-local"
+          type="time"
           name="start_time"
-          value={task.start_time}
+          value={formData.start_time}
           onChange={handleChange}
           required
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -129,9 +141,9 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
           End Time
         </label>
         <input
-          type="datetime-local"
+          type="time"
           name="end_time"
-          value={task.end_time}
+          value={formData.end_time}
           onChange={handleChange}
           required
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -145,7 +157,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
         </label>
         <select
           name="recurrence"
-          value={task.recurrence}
+          value={formData.recurrence}
           onChange={handleChange}
           className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm cursor-pointer"
         >
@@ -161,7 +173,7 @@ const AddTaskForm = ({ onClose, onTaskAdded }) => {
         type="submit"
         className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
       >
-        Add Task
+        {task ? "Update Task" : "Add Task"}
       </button>
     </form>
   );

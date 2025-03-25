@@ -1,153 +1,389 @@
-    import React, { useEffect, useState } from "react";
-    import axios from "axios";
-    import { isAuthenticated } from "../utils/auth";
-    import {FaCameraRetro} from "react-icons/fa"
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { isAuthenticated } from "../utils/auth";
+import { FaCameraRetro } from "react-icons/fa";
+import { toast } from "react-toastify";
+import Modal from "./Modal"; // Assuming you have this component
 
-    const Profile = () => {
-        const [user, setUser] = useState(null);
-        const [loading, setLoading] = useState(true);
-        const [profilePicture, setProfilePicture] = useState("https://source.unsplash.com/random/100x100");
-        const [uploading, setUploading] = useState(false);
+const Profile = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profilePicture, setProfilePicture] = useState(
+    "https://source.unsplash.com/random/100x100"
+  );
+  const [uploading, setUploading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    fullname: "",
+    username: "",
+    email: "",
+  });
+  const [passwordFormData, setPasswordFormData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
-        // Fetch user details from backend
-        useEffect(() => {
-            const fetchUserDetails = async () => {
-                try {
-                    const token = localStorage.getItem("token");
-                    const response = await axios.get("http://localhost:5000/api/users/me", {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
+  // Fetch user details from backend
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-                    setUser(response.data);
+        setUser(response.data);
+        setEditFormData({
+          fullname: response.data.fullname || "",
+          username: response.data.username || "",
+          email: response.data.email || "",
+        });
 
-                    // Ensure profilePicture is correctly set from backend
-                    if (response.data.profilePictureUrl) {
-                        setProfilePicture(`http://localhost:5000/${response.data.profilePictureUrl}`);
-                    }
-                } catch (error) {
-                    console.error("Error fetching user details:", error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            if (isAuthenticated()) {
-                fetchUserDetails();
-            }
-        }, []);
-
-        // Handle profile picture change
-        const handleProfileChange = async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            try {
-                setUploading(true);
-
-                // Show temporary preview while uploading
-                const tempUrl = URL.createObjectURL(file);
-                setProfilePicture(tempUrl);
-
-                const formData = new FormData();
-                formData.append("profilePicture", file);
-
-                const token = localStorage.getItem("token");
-                const response = await axios.post(
-                    "http://localhost:5000/api/users/profile/update-profile-picture",
-                    formData,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "multipart/form-data",
-                        },
-                    }
-                );
-
-                // Update profile picture from backend response
-                if (response.data.profilePictureUrl) {
-                    const updatedUrl = `http://localhost:5000/${response.data.profilePictureUrl}`;
-                    setProfilePicture(updatedUrl);
-                }
-            } catch (error) {
-                console.error("Error uploading profile picture:", error);
-                alert("Failed to upload profile picture. Please try again.");
-            } finally {
-                setUploading(false);
-            }
-        };
-
-        if (loading) {
-            return <p className="text-center">Loading...</p>;
+        if (response.data.profilePictureUrl) {
+          setProfilePicture(
+            `http://localhost:5000/${response.data.profilePictureUrl}`
+          );
         }
-
-        if (!user) {
-            return <p className="text-center">Unable to load user details.</p>;
-        }
-
-        return (
-            <div className="max-w-md mx-auto mt-6 p-16 bg-white rounded-lg dark:bg-gray-800 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
-                {/* Profile Picture */}
-                <div className="flex flex-col items-center">
-                    {/* Hidden file input */}
-                    <input type="file" id="profileInput" accept="image/*" className="hidden" onChange={handleProfileChange} />
-
-                    {/* Profile Picture - Clickable */}
-                    <div
-                        className="flex justify-center mb-6 cursor-pointer relative group"
-                        onClick={() => document.getElementById("profileInput").click()}
-                    >
-                        {/* Profile Picture */}
-                        <img
-                            src={profilePicture}
-                            alt="Profile"
-                            className="w-32 h-32 rounded-full object-cover border-2 border-indigo-600"
-                        />
-
-                        {/* Overlay with Camera Icon */}
-                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-70 group-hover:opacity-100 transition-opacity">
-                            <FaCameraRetro className="h-8 w-8 text-white opacity-50 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* User Details */}
-                <div className="space-y-4">
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Full Name</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.name || "Not provided"}</p>
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Username</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.username}</p>
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.email}</p>
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Country</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{user.country || "Not provided"}</p>
-                    </div>
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Member Since</p>
-                        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{new Date(user.createdAt).toLocaleDateString()}</p>
-                    </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="mt-6 flex space-x-4">
-                    <button className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Edit Profile
-                    </button>
-                    <button className="w-full py-2 px-4 bg-red-600 text-white font-semibold rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                        Change Password
-                    </button>
-                </div>
-
-                {/* Loading Indicator */}
-                {uploading && <p className="text-center mt-4 text-indigo-600">Uploading profile picture...</p>}
-            </div>
-        );
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    export default Profile;
+    if (isAuthenticated()) {
+      fetchUserDetails();
+    }
+  }, []);
+
+  // Handle profile picture change
+  const handleProfileChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const tempUrl = URL.createObjectURL(file);
+      setProfilePicture(tempUrl);
+
+      const formData = new FormData();
+      formData.append("profilePicture", file);
+
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        "http://localhost:5000/api/users/profile/update-profile-picture",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.profilePictureUrl) {
+        const updatedUrl = `http://localhost:5000/${response.data.profilePictureUrl}`;
+        setProfilePicture(updatedUrl);
+        toast.success("Profile picture updated successfully!");
+      }
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      toast.error("Failed to upload profile picture. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Handle Edit Profile form submission
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        "http://localhost:5000/api/users/profile",
+        editFormData,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setUser(response.data);
+      setIsEditModalOpen(false);
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error(error.response?.data?.message || "Failed to update profile");
+    }
+  };
+
+  // Handle Change Password form submission
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
+      return toast.error("New password and confirmation do not match");
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        "http://localhost:5000/api/users/profile/change-password",
+        {
+          currentPassword: passwordFormData.currentPassword,
+          newPassword: passwordFormData.newPassword,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      setPasswordFormData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setIsPasswordModalOpen(false);
+      toast.success("Password changed successfully!");
+      // Example (React/Next.js)
+      if (response.data.requireReLogin) {
+        localStorage.removeItem("token"); // Clear old token
+        redirect("/login"); // Force fresh login
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      toast.error(error.response?.data?.message || "Failed to change password");
+    }
+  };
+
+  if (loading) {
+    return <p className="text-center">Loading...</p>;
+  }
+
+  if (!user) {
+    return <p className="text-center">Unable to load user details.</p>;
+  }
+
+  return (
+    <div className="max-w-md mx-auto mt-6 p-16 bg-white rounded-lg dark:bg-gray-800 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
+      {/* Profile Picture */}
+      <div className="flex flex-col items-center">
+        <input
+          type="file"
+          id="profileInput"
+          accept="image/*"
+          className="hidden"
+          onChange={handleProfileChange}
+        />
+        <div
+          className="flex justify-center mb-6 cursor-pointer relative group"
+          onClick={() => document.getElementById("profileInput").click()}
+        >
+          <img
+            src={profilePicture}
+            alt="Profile"
+            className="w-32 h-32 rounded-full object-cover border-2 border-indigo-600"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-70 group-hover:opacity-100 transition-opacity">
+            <FaCameraRetro className="h-8 w-8 text-white opacity-50 group-hover:opacity-100 transition-opacity" />
+          </div>
+        </div>
+      </div>
+
+      {/* User Details */}
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            Full Name
+          </p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {user.fullname || "Not provided"}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            Username
+          </p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {user.username}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            Email
+          </p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {user.email}
+          </p>
+        </div>
+        <div>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            Member Since
+          </p>
+          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {new Date(user.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="mt-6 flex space-x-4">
+        <button
+          onClick={() => setIsEditModalOpen(true)}
+          className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+        >
+          Edit Profile
+        </button>
+        <button
+          onClick={() => setIsPasswordModalOpen(true)}
+          className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+        >
+          Change Password
+        </button>
+      </div>
+
+      {/* Loading Indicator */}
+      {uploading && (
+        <p className="text-center mt-4 text-indigo-600">
+          Uploading profile picture...
+        </p>
+      )}
+
+      {/* Edit Profile Modal */}
+      <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
+        <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
+        <form onSubmit={handleEditSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={editFormData.fullname}
+              onChange={(e) =>
+                setEditFormData({ ...editFormData, fullname: e.target.value })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Username
+            </label>
+            <input
+              type="text"
+              value={editFormData.username}
+              onChange={(e) =>
+                setEditFormData({ ...editFormData, username: e.target.value })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              value={editFormData.email}
+              onChange={(e) =>
+                setEditFormData({ ...editFormData, email: e.target.value })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              onClick={() => setIsEditModalOpen(false)}
+              className="text-white bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Change Password Modal */}
+      <Modal
+        isOpen={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      >
+        <h2 className="text-xl font-bold mb-4">Change Password</h2>
+        <form onSubmit={handlePasswordSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Current Password
+            </label>
+            <input
+              type="password"
+              value={passwordFormData.currentPassword}
+              onChange={(e) =>
+                setPasswordFormData({
+                  ...passwordFormData,
+                  currentPassword: e.target.value,
+                })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              New Password
+            </label>
+            <input
+              type="password"
+              value={passwordFormData.newPassword}
+              onChange={(e) =>
+                setPasswordFormData({
+                  ...passwordFormData,
+                  newPassword: e.target.value,
+                })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Confirm New Password
+            </label>
+            <input
+              type="password"
+              value={passwordFormData.confirmPassword}
+              onChange={(e) =>
+                setPasswordFormData({
+                  ...passwordFormData,
+                  confirmPassword: e.target.value,
+                })
+              }
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <button
+              type="button"
+              onClick={() => setIsPasswordModalOpen(false)}
+              className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+};
+
+export default Profile;

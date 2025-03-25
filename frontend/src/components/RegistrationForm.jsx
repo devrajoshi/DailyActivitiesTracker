@@ -9,6 +9,9 @@ import AuthLayout from "./AuthLayout";
 
 // Validation schema
 const schema = Yup.object().shape({
+  fullname: Yup.string()
+    .min(6, "Name must be at least 4 characters")
+    .required("Name is required"),
   username: Yup.string().required("Username is required"),
   email: Yup.string()
     .email("Invalid email address")
@@ -39,17 +42,23 @@ const RegistrationForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:5000/api/users/register", data);
-      toast.success(response.data?.message || "Registration successful! Redirecting to login...");
-  
+      const response = await axios.post(
+        "http://localhost:5000/api/users/register",
+        data
+      );
+      toast.success(
+        response.data?.message ||
+          "Registration successful! Redirecting to login..."
+      );
+
       // Store email and password in session storage
       sessionStorage.setItem("preFilledEmail", data.email);
       sessionStorage.setItem("preFilledPassword", data.password);
-  
+
       // Delay redirection to allow the toast to display
       setTimeout(() => {
         window.location.href = "/login"; // Redirect to login page
-      }, 1000); // 3-second delay
+      }, 2000); // 3-second delay
     } catch (error) {
       toast.error(error.response?.data?.message || "Registration failed");
     }
@@ -58,6 +67,25 @@ const RegistrationForm = () => {
   return (
     <AuthLayout title="Register">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Name Field */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Full Name
+          </label>
+          <input
+            type="text"
+            {...register("fullname")}
+            autoComplete="fullname" // Autocomplete for fullname
+            className={`mt-1 block w-full px-3 py-2 border ${
+              errors.fullname ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+          />
+          {errors.fullname && (
+            <p className="mt-2 text-sm text-red-600">
+              {errors.fullname.message}
+            </p>
+          )}
+        </div>
         {/* Username Field */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -67,8 +95,9 @@ const RegistrationForm = () => {
             type="text"
             {...register("username")}
             autoComplete="username" // Autocomplete for username
-            className={`mt-1 block w-full px-3 py-2 border ${errors.username ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+            className={`mt-1 block w-full px-3 py-2 border ${
+              errors.username ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.username && (
             <p className="mt-2 text-sm text-red-600">
@@ -86,8 +115,9 @@ const RegistrationForm = () => {
             type="email"
             {...register("email")}
             autoComplete="email" // Autocomplete for email
-            className={`mt-1 block w-full px-3 py-2 border ${errors.email ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+            className={`mt-1 block w-full px-3 py-2 border ${
+              errors.email ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.email && (
             <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>
@@ -103,8 +133,9 @@ const RegistrationForm = () => {
             type="password"
             {...register("password")}
             autoComplete="new-password" // Autocomplete for registration password
-            className={`mt-1 block w-full px-3 py-2 border ${errors.password ? "border-red-500" : "border-gray-300"
-              } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
+            className={`mt-1 block w-full px-3 py-2 border ${
+              errors.password ? "border-red-500" : "border-gray-300"
+            } rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
           />
           {errors.password && (
             <p className="mt-2 text-sm text-red-600">

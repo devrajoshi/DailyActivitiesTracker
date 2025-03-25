@@ -12,7 +12,7 @@ import Footer from "./components/Footer";
 import Home from "./components/Home";
 import RegistrationForm from "./components/RegistrationForm";
 import LoginForm from "./components/LoginForm";
-import Dashboard from "./components/Dashboard";
+// import Dashboard from "./components/Dashboard";
 import Activities from "./components/Activities";
 import History from "./components/History";
 import Profile from "./components/Profile";

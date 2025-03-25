@@ -34,15 +34,10 @@ const taskSchema = new mongoose.Schema(
       enum: ["Daily", "Weekly", "Custom", "None"],
       default: "Daily",
     },
-    // custom_recurrence: {
-    //   type: [String],
-    //   default: [],
-    // },
   },
   { timestamps: true }
 );
 
-// Create and export the Task model
 const Task = mongoose.model("Task", taskSchema);
 
 export default Task;

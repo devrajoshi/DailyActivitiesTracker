@@ -2,7 +2,8 @@ import express from "express";
 import {
   getUsers,
   getSpecificUser,
-  updateSpecificUser,
+  updateProfile,
+  changePassword,
   registerUser,
   loginUser,
 } from "../controllers/UserController.js";
@@ -17,6 +18,9 @@ router.route("/login").post(loginUser); // Login a user
 
 // Protected Routes
 router.route("/me").get(protect, getSpecificUser); // Get authenticated user's details
-router.route("/me").put(protect, updateSpecificUser); // Update authenticated user's details
+// router.route("/me").put(protect, updateSpecificUser); // Update authenticated user's details
+// router.route("/refresh-token").post(protect, refreshToken); // Refresh authentication token
+router.route("/profile").put(protect, updateProfile); // Update authenticated user's details
+router.route("/profile/change-password").put(protect, changePassword); // Update authenticated user's details
 
 export default router;

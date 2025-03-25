@@ -41,8 +41,8 @@ const Navbar = () => {
 
   // Handle Logout
   const handleLogout = () => {
-      logout(); // Clear token and log out the user
-      navigate("/login"); // Redirect to login page
+    logout(); // Clear token and log out the user
+    navigate("/login"); // Redirect to login page
   };
 
   return (
@@ -229,14 +229,8 @@ const Navbar = () => {
               >
                 History
               </Link>
-              <Link
-                to="/profile"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
-              >
-                Profile
-              </Link>
               {/* Logout Modal */}
-            {isAuthenticated() && <LogoutModal onLogout={handleLogout} />}
+              {isAuthenticated() && <LogoutModal onLogout={handleLogout} />}
             </>
           ) : (
             <>

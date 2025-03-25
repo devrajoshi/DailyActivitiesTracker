@@ -17,27 +17,34 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Route to update profile picture
-router.post("/update-profile-picture", upload.single("profilePicture"), async (req, res) => {
-  try {
-    const userId = req.user._id; // Get user ID from the auth middleware
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
+router.post(
+  "/update-profile-picture",
+  upload.single("profilePicture"),
+  async (req, res) => {
+    try {
+      const userId = req.user._id; // Get user ID from the auth middleware
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const profilePictureUrl = `/uploads/${req.file.filename}`; // Construct the file URL
+
+      // Update the user's profile picture URL in the database
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { profilePictureUrl },
+        { new: true }
+      );
+
+      res
+        .status(200)
+        .json({ profilePictureUrl: updatedUser.profilePictureUrl });
+    } catch (error) {
+      console.error("Error updating profile picture:", error);
+      res
+        .status(500)
+        .json({ message: "Server error while updating profile picture" });
     }
-
-    const profilePictureUrl = `/uploads/${req.file.filename}`; // Construct the file URL
-
-    // Update the user's profile picture URL in the database
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { profilePictureUrl },
-      { new: true }
-    );
-
-    res.status(200).json({ profilePictureUrl: updatedUser.profilePictureUrl });
-  } catch (error) {
-    console.error("Error updating profile picture:", error);
-    res.status(500).json({ message: "Server error while updating profile picture" });
   }
-});
-
+);
 export default router;

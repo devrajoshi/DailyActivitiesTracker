@@ -1,5 +1,7 @@
 import User from "../models/User.js";
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import bcrypt from "bcryptjs";
 
 dotenv.config();
 
@@ -35,15 +37,16 @@ const getSpecificUser = async (req, res) => {
   }
 };
 
-const updateSpecificUser = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
-    const { name, username, email, country } = req.body;
+    const userId = req.user._id; // Assuming auth middleware sets req.user
+    const { fullname, username, email } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
-      req.user._id,
-      { name, username, email, country },
+      userId,
+      { fullname, username, email },
       { new: true, runValidators: true }
-    ).select("-password");
+    );
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -51,16 +54,62 @@ const updateSpecificUser = async (req, res) => {
 
     res.status(200).json(updatedUser);
   } catch (error) {
-    console.error("Error updating user details:", error);
-    res
+    console.error("Error updating profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    if (!req.user || !req.user._id) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: User not authenticated" });
+    }
+
+    const userId = req.user._id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Current password and new password are required" });
+    }
+
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Current password is incorrect" });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const newHashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // Update the password and bypass the pre-save middleware
+    user.password = newHashedPassword;
+    user.skipPasswordHashing = true; // Bypass hashing in middleware
+    await user.save();
+
+    return res.status(200).json({
+      message: "Password changed successfully",
+      requireReLogin: true,
+    });
+  } catch (error) {
+    console.error(error);
+    return res
       .status(500)
-      .json({ message: "Server error while updating user details" });
+      .json({ message: "Server error", error: error.message });
   }
 };
 
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password, timezone } = req.body;
+    const { fullname, username, email, password } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
@@ -70,6 +119,7 @@ const registerUser = async (req, res) => {
 
     // Create a new user
     const newUser = new User({
+      fullname,
       username,
       email,
       password,
@@ -83,44 +133,57 @@ const registerUser = async (req, res) => {
   }
 };
 
-import jwt from "jsonwebtoken";
-
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find the user by email
+    // Find the user by email (including the password field)
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Compare the password
-    const isMatch = await user.comparePassword(password);
+    // Debugging logs (temporary - remove in production)
+    console.log("Stored hash:", user.password);
+    console.log("Input password:", password);
+
+    // Direct bcrypt comparison (bypassing model method for debugging)
+    const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match result:", isMatch);
+
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
     // Generate JWT token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d", // Token expires in 1 day
+      expiresIn: "1d",
     });
 
-    res.status(200).json({
+    // Return success response with user data (excluding sensitive fields)
+    const userData = user.toObject();
+    delete userData.password;
+    delete userData.__v;
+
+    return res.status(200).json({
       message: "Login successful",
       token,
-      user: { id: user._id, username: user.username, email: user.email },
+      user: userData,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("Login error:", error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
   }
 };
 
 export {
   getUsers,
   getSpecificUser,
-  updateSpecificUser,
+  updateProfile,
+  changePassword,
   registerUser,
   loginUser,
 };
