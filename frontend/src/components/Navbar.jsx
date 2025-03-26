@@ -217,46 +217,44 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div
-        className={`${
-          isMenuOpen ? "block" : "hidden"
-        } md:hidden fixed top-16 right-4 z-50 bg-indigo-600 dark:bg-gray-800 p-4 rounded-lg shadow-lg`}
-      >
-        <div className="flex flex-col items-end space-y-2 bg-indigo-600 ">
+      <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           {isAuthenticated() ? (
             <>
               <Link
                 to="/activities"
-                className="bg-indigo-600 text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
               >
                 Activities
               </Link>
               <Link
                 to="/history"
-                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
               >
                 History
               </Link>
               {/* Logout Button for Mobile Menu */}
-              <LogoutModal onLogout={handleLogout} isMobile={true} />
+              {isAuthenticated() && (
+                <LogoutModal onLogout={handleLogout} isMobile={true} />
+              )}
             </>
           ) : (
             <>
               <Link
                 to="/"
-                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
               >
                 Home
               </Link>
               <Link
                 to="/register"
-                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
               >
                 Register
               </Link>
               <Link
                 to="/login"
-                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
               >
                 Login
               </Link>
