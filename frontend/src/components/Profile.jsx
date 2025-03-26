@@ -223,7 +223,7 @@ const Profile = () => {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Full Name
             </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
               {user.fullname || "Not provided"}
             </p>
           </div>
@@ -231,7 +231,7 @@ const Profile = () => {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Username
             </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
               {user.username}
             </p>
           </div>
@@ -239,7 +239,7 @@ const Profile = () => {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Email
             </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
               {user.email}
             </p>
           </div>
@@ -247,7 +247,7 @@ const Profile = () => {
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
               Member Since
             </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
               {new Date(user.createdAt).toLocaleDateString()}
             </p>
           </div>

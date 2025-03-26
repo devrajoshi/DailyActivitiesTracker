@@ -46,14 +46,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-indigo-600 shadow-md dark:bg-gray-800 w-full fixed top-0 z-50">
+    <nav className="bg-indigo-600 dark:bg-gray-800 shadow-md w-full fixed top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link
               to="/"
-              className="text-white text-xl font-bold dark:text-gray-100"
+              className="text-white text-xl font-bold dark:text-gray-200"
             >
               Routine Tracker
             </Link>
@@ -65,13 +65,13 @@ const Navbar = () => {
               <>
                 <Link
                   to="/activities"
-                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   Activities
                 </Link>
                 <Link
                   to="/history"
-                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   History
                 </Link>
@@ -80,19 +80,19 @@ const Navbar = () => {
               <>
                 <Link
                   to="/"
-                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   Home
                 </Link>
                 <Link
                   to="/register"
-                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   Register
                 </Link>
                 <Link
                   to="/login"
-                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                  className="text-white hover:bg-indigo-700 px-3 py-2 rounded-md text-sm font-medium dark:text-gray-200 dark:hover:bg-gray-700"
                 >
                   Login
                 </Link>
@@ -106,7 +106,7 @@ const Navbar = () => {
             {isAuthenticated() && (
               <Link
                 to="/profile"
-                className="text-white hover:bg-indigo-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-white hover:bg-indigo-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -175,7 +175,7 @@ const Navbar = () => {
               <button
                 type="button"
                 onClick={toggleMenu}
-                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white dark:text-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                className="inline-flex items-center justify-center p-2 rounded-md text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white dark:text-gray-200 dark:hover:bg-gray-700 cursor-pointer"
                 aria-controls="mobile-menu"
                 aria-expanded="false"
               >
@@ -223,13 +223,13 @@ const Navbar = () => {
             <>
               <Link
                 to="/activities"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 Activities
               </Link>
               <Link
                 to="/history"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 History
               </Link>
@@ -242,19 +242,19 @@ const Navbar = () => {
             <>
               <Link
                 to="/"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 Home
               </Link>
               <Link
                 to="/register"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 Register
               </Link>
               <Link
                 to="/login"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:bg-gray-700"
               >
                 Login
               </Link>

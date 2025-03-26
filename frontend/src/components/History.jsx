@@ -60,7 +60,7 @@ const History = () => {
     <div className="w-9/10 md:w-3/4 max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] dark:bg-gray-800">
       {/* Filters */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200 mb-4">
           Filter History
         </h2>
         <div className="flex space-x-4">
@@ -89,7 +89,7 @@ const History = () => {
 
       {/* History List */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-200 mb-4">
           Task History
         </h2>
 
@@ -105,7 +105,7 @@ const History = () => {
                 key={task._id}
                 className="p-4 bg-gray-100 rounded-md dark:bg-gray-700"
               >
-                <p className="font-semibold text-gray-900 dark:text-gray-100">
+                <p className="font-semibold text-gray-900 dark:text-gray-200">
                   {task.title}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
