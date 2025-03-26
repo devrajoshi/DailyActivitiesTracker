@@ -220,7 +220,7 @@ const Navbar = () => {
       <div
         className={`${
           isMenuOpen ? "block" : "hidden"
-        } md:hidden fixed top-16 right-4 z-50 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg`}
+        } md:hidden fixed top-16 right-4 z-50 bg-indigo-600 dark:bg-gray-800 p-4 rounded-lg shadow-lg`}
       >
         <div className="flex flex-col items-end space-y-2 bg-indigo-600 ">
           {isAuthenticated() ? (
