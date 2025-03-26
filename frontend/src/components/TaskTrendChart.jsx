@@ -68,7 +68,7 @@ const TaskTrendChart = () => {
   }, []);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="w-9/10 md:w-3/4 max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-xl font-semibold mb-4">Task Trends</h2>
       <Bar
         data={chartData}

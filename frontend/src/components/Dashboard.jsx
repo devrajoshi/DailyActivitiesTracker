@@ -14,9 +14,12 @@ const Dashboard = () => {
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/tasks", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "https://dailyactivitiestracker-backend.onrender.com/api/tasks",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);

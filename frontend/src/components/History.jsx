@@ -16,10 +16,13 @@ const History = () => {
       setLoading(true);
 
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/history", {
-        headers: { Authorization: `Bearer ${token}` },
-        params: filters,
-      });
+      const response = await axios.get(
+        "https://dailyactivitiestracker-backend.onrender.com/api/history",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          params: filters,
+        }
+      );
 
       setTasks(response.data);
     } catch (error) {
@@ -54,10 +57,12 @@ const History = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] dark:bg-gray-800">
+    <div className="w-9/10 md:w-3/4 max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] dark:bg-gray-800">
       {/* Filters */}
       <div className="mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Filter History</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Filter History
+        </h2>
         <div className="flex space-x-4">
           <input
             type="date"
@@ -84,7 +89,9 @@ const History = () => {
 
       {/* History List */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Task History</h2>
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Task History
+        </h2>
 
         {/* Task Trend Chart */}
         <TaskTrendChart />
@@ -94,10 +101,16 @@ const History = () => {
         ) : (
           <ul className="space-y-4">
             {tasks.map((task) => (
-              <li key={task._id} className="p-4 bg-gray-100 rounded-md dark:bg-gray-700">
-                <p className="font-semibold text-gray-900 dark:text-gray-100">{task.title}</p>
+              <li
+                key={task._id}
+                className="p-4 bg-gray-100 rounded-md dark:bg-gray-700"
+              >
+                <p className="font-semibold text-gray-900 dark:text-gray-100">
+                  {task.title}
+                </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Status: {task.status} | Created: {new Date(task.createdAt).toLocaleDateString()}
+                  Status: {task.status} | Created:{" "}
+                  {new Date(task.createdAt).toLocaleDateString()}
                 </p>
               </li>
             ))}

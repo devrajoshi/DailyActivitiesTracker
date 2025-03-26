@@ -101,7 +101,7 @@ const Navbar = () => {
           </div>
 
           {/* Right aligned icons (Profile Icon and Dark Mode Toggle) */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 md:space-x-4">
             {/* Profile Icon */}
             {isAuthenticated() && (
               <Link
@@ -163,8 +163,12 @@ const Navbar = () => {
               )}
             </button>
 
-            {/* Logout Modal */}
-            {isAuthenticated() && <LogoutModal onLogout={handleLogout} />}
+            {/* Logout Modal (Shown only on medium and large screens) */}
+            {isAuthenticated() && (
+              <div className="hidden md:block">
+                <LogoutModal onLogout={handleLogout} />
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <div className="md:hidden flex items-center">
@@ -213,42 +217,46 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden`}>
-        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+      <div
+        className={`${
+          isMenuOpen ? "block" : "hidden"
+        } md:hidden fixed top-16 right-4 z-50 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg`}
+      >
+        <div className="flex flex-col items-end space-y-2 bg-indigo-600 ">
           {isAuthenticated() ? (
             <>
               <Link
                 to="/activities"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="bg-indigo-600 text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
               >
                 Activities
               </Link>
               <Link
                 to="/history"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
               >
                 History
               </Link>
-              {/* Logout Modal */}
-              {isAuthenticated() && <LogoutModal onLogout={handleLogout} />}
+              {/* Logout Button for Mobile Menu */}
+              <LogoutModal onLogout={handleLogout} isMobile={true} />
             </>
           ) : (
             <>
               <Link
                 to="/"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
               >
                 Home
               </Link>
               <Link
                 to="/register"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
               >
                 Register
               </Link>
               <Link
                 to="/login"
-                className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium dark:text-gray-100 dark:hover:bg-gray-700"
+                className="text-indigo-600 hover:text-indigo-700 dark:text-gray-100 dark:hover:text-gray-300"
               >
                 Login
               </Link>

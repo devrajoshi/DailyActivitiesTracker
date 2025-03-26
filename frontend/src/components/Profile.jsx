@@ -3,6 +3,7 @@ import axios from "axios";
 import { isAuthenticated } from "../utils/auth";
 import { FaCameraRetro } from "react-icons/fa";
 import { toast } from "react-toastify";
+// import { BiSolidEdit } from "react-icons/bi";
 import Modal from "./Modal"; // Assuming you have this component
 
 const Profile = () => {
@@ -30,9 +31,12 @@ const Profile = () => {
     const fetchUserDetails = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "https://dailyactivitiestracker-backend.onrender.com/api/users/me",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         setUser(response.data);
         setEditFormData({
@@ -43,7 +47,7 @@ const Profile = () => {
 
         if (response.data.profilePictureUrl) {
           setProfilePicture(
-            `http://localhost:5000/${response.data.profilePictureUrl}`
+            `https://dailyactivitiestracker-backend.onrender.com/${response.data.profilePictureUrl}`
           );
         }
       } catch (error) {
@@ -73,7 +77,7 @@ const Profile = () => {
 
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5000/api/users/profile/update-profile-picture",
+        "https://dailyactivitiestracker-backend.onrender.com/api/users/profile/update-profile-picture",
         formData,
         {
           headers: {
@@ -84,7 +88,7 @@ const Profile = () => {
       );
 
       if (response.data.profilePictureUrl) {
-        const updatedUrl = `http://localhost:5000/${response.data.profilePictureUrl}`;
+        const updatedUrl = `https://dailyactivitiestracker-backend.onrender.com/${response.data.profilePictureUrl}`;
         setProfilePicture(updatedUrl);
         toast.success("Profile picture updated successfully!");
       }
@@ -102,7 +106,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        "http://localhost:5000/api/users/profile",
+        "https://dailyactivitiestracker-backend.onrender.com/api/users/profile",
         editFormData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -132,7 +136,7 @@ const Profile = () => {
 
       // Send password change request to the backend
       const response = await axios.put(
-        "http://localhost:5000/api/users/profile/change-password",
+        "https://dailyactivitiestracker-backend.onrender.com/api/users/profile/change-password",
         {
           currentPassword: passwordFormData.currentPassword,
           newPassword: passwordFormData.newPassword,
@@ -187,81 +191,85 @@ const Profile = () => {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-6 p-16 bg-white rounded-lg dark:bg-gray-800 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
-      {/* Profile Picture */}
-      <div className="flex flex-col items-center">
-        <input
-          type="file"
-          id="profileInput"
-          accept="image/*"
-          className="hidden"
-          onChange={handleProfileChange}
-        />
-        <div
-          className="flex justify-center mb-6 cursor-pointer relative group"
-          onClick={() => document.getElementById("profileInput").click()}
-        >
-          <img
-            src={profilePicture}
-            alt="Profile"
-            className="w-32 h-32 rounded-full object-cover border-2 border-indigo-600"
+    <div className=" w-9/10 md:w-3/4 max-w-md mx-auto mt-6 p-4 bg-white rounded-lg dark:bg-gray-800 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
+      <div className="flex flex-col items-center p-2">
+        {/* Profile Picture */}
+        <div>
+          <input
+            type="file"
+            id="profileInput"
+            accept="image/*"
+            className="hidden"
+            onChange={handleProfileChange}
           />
-          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-70 group-hover:opacity-100 transition-opacity">
-            <FaCameraRetro className="h-8 w-8 text-white opacity-50 group-hover:opacity-100 transition-opacity" />
+          <div
+            className="flex justify-center mb-6 cursor-pointer relative group"
+            onClick={() => document.getElementById("profileInput").click()}
+          >
+            <img
+              src={profilePicture}
+              alt="Profile"
+              className="w-32 h-32 rounded-full object-cover border-2 border-indigo-600"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 hover:opacity-70 group-hover:opacity-100 transition-opacity">
+              <FaCameraRetro className="h-8 w-8 text-white opacity-50 group-hover:opacity-100 transition-opacity" />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* User Details */}
-      <div className="space-y-4">
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Full Name
-          </p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {user.fullname || "Not provided"}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Username
-          </p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {user.username}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Email
-          </p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {user.email}
-          </p>
-        </div>
-        <div>
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-            Member Since
-          </p>
-          <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            {new Date(user.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-      </div>
+        {/* User Details */}
+        <div className=" flex-col items-center space-y-4">
+          <div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Full Name
+            </p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {user.fullname || "Not provided"}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Username
+            </p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {user.username}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Email
+            </p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {user.email}
+            </p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+              Member Since
+            </p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              {new Date(user.createdAt).toLocaleDateString()}
+            </p>
+          </div>
+          {/* </div>
 
-      {/* Action Buttons */}
-      <div className="mt-6 flex space-x-4">
-        <button
-          onClick={() => setIsEditModalOpen(true)}
-          className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
-        >
-          Edit Profile
-        </button>
-        <button
-          onClick={() => setIsPasswordModalOpen(true)}
-          className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
-        >
-          Change Password
-        </button>
+        <div className="flex justify-center items-center p-4 mt-2"> */}
+          {/* Action Buttons */}
+          <div className="flex items-center mt-10">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-2 md:px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+            >
+              Edit Info
+            </button>
+            <button
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+            >
+              Change Password
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Loading Indicator */}

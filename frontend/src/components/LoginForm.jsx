@@ -46,7 +46,7 @@ const LoginForm = () => {
     try {
       // Send login request to the server
       const response = await axios.post(
-        "http://localhost:5000/api/users/login",
+        "https://dailyactivitiestracker-backend.onrender.com/api/users/login",
         data
       );
 

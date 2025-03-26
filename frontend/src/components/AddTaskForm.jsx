@@ -44,7 +44,7 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
       if (task) {
         // Update an existing task
         await axios.put(
-          `http://localhost:5000/api/tasks/${task._id}`,
+          `https://dailyactivitiestracker-backend.onrender.com/api/tasks/${task._id}`,
           formData,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -53,9 +53,13 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
         toast.success("Task updated successfully!");
       } else {
         // Create a new task
-        await axios.post(`http://localhost:5000/api/tasks`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.post(
+          `https://dailyactivitiestracker-backend.onrender.com/api/tasks`,
+          formData,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         toast.success("Task added successfully!");
       }
 

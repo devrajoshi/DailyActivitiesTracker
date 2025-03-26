@@ -22,9 +22,12 @@ const Activities = () => {
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/tasks", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        "https://dailyactivitiestracker-backend.onrender.com/api/tasks",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -99,7 +102,7 @@ const Activities = () => {
               try {
                 const token = localStorage.getItem("token");
                 await axios.delete(
-                  `http://localhost:5000/api/tasks/${taskId}`,
+                  `https://dailyactivitiestracker-backend.onrender.com/api/tasks/${taskId}`,
                   {
                     headers: { Authorization: `Bearer ${token}` },
                   }
@@ -136,7 +139,7 @@ const Activities = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] dark:bg-gray-800">
+    <div className="w-9/10 md:w-3/4 max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] dark:bg-gray-800">
       <h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
 
       {/* Task List */}
