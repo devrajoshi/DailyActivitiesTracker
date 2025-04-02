@@ -139,7 +139,7 @@ const Activities = () => {
   };
 
   return (
-    <div className="w-9/10 md:w-3/4 max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)] dark:bg-gray-800">
+    <div className="w-9/10 md:w-3/4 max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
       <h1 className="text-3xl font-bold mb-6">Your Tasks</h1>
 
       {/* Task List */}

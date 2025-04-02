@@ -191,7 +191,7 @@ const Profile = () => {
   }
 
   return (
-    <div className=" w-9/10 md:w-3/4 max-w-md mx-auto mt-6 p-4 bg-white rounded-lg dark:bg-gray-800 shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
+    <div className=" w-9/10 md:w-3/4 max-w-md mx-auto mt-6 p-4 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
       <div className="flex flex-col items-center p-2">
         {/* Profile Picture */}
         <div>
@@ -220,34 +220,24 @@ const Profile = () => {
         {/* User Details */}
         <div className=" flex-col items-center space-y-4">
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Full Name
-            </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
+            <p className="text-sm font-medium text-gray-500">Full Name</p>
+            <p className="text-lg font-semibold text-gray-900">
               {user.fullname || "Not provided"}
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Username
-            </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
+            <p className="text-sm font-medium text-gray-500">Username</p>
+            <p className="text-lg font-semibold text-gray-900">
               {user.username}
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Email
-            </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
-              {user.email}
-            </p>
+            <p className="text-sm font-medium text-gray-500">Email</p>
+            <p className="text-lg font-semibold text-gray-900">{user.email}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Member Since
-            </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
+            <p className="text-sm font-medium text-gray-500">Member Since</p>
+            <p className="text-lg font-semibold text-gray-900">
               {new Date(user.createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -258,13 +248,13 @@ const Profile = () => {
           <div className="flex items-center mt-10">
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-2 md:px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-2 md:px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
             >
               Edit Info
             </button>
             <button
               onClick={() => setIsPasswordModalOpen(true)}
-              className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 dark:focus:ring-teal-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+              className="text-white bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
             >
               Change Password
             </button>
@@ -326,13 +316,13 @@ const Profile = () => {
             <button
               type="button"
               onClick={() => setIsEditModalOpen(false)}
-              className="text-white bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+              className="text-white bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
+              className="text-white bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 cursor-pointer"
             >
               Save
             </button>
