@@ -76,6 +76,7 @@ const Navbar = () => {
             {isAuthenticated() && (
               <Link
                 to="/profile"
+                onClick={() => setIsMenuOpen(false)} // Close menu on click
                 className="text-white hover:bg-indigo-700 p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-indigo-600 focus:ring-white"
               >
                 <svg
