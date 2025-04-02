@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import Modal from "./Modal"; // Assuming you have a Modal component
 import AddTaskForm from "./AddTaskForm";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Activities = () => {
   const [tasks, setTasks] = useState([]);

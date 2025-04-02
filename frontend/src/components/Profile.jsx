@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 // import { BiSolidEdit } from "react-icons/bi";
 import Modal from "./Modal"; // Assuming you have this component
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Profile = () => {
   const [user, setUser] = useState(null);
