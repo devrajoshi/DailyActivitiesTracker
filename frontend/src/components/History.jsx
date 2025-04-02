@@ -20,7 +20,7 @@
 
 //       const token = localStorage.getItem("token");
 //       const response = await axios.get(
-//         "API_URL/api/history",
+//         `${API_URL}/api/history`,
 //         {
 //           headers: { Authorization: `Bearer ${token}` },
 //           params: filters,

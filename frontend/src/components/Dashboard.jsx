@@ -16,7 +16,7 @@ const Dashboard = () => {
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("API_URL/api/tasks", {
+      const response = await axios.get(`${API_URL}/api/tasks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(response.data);

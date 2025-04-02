@@ -45,13 +45,13 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
 
       if (task) {
         // Update an existing task
-        await axios.put(`API_URL/api/tasks/${task._id}`, formData, {
+        await axios.put(`${API_URL}/api/tasks/${task._id}`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Task updated successfully!");
       } else {
         // Create a new task
-        await axios.post(`API_URL/api/tasks`, formData, {
+        await axios.post(`${API_URL}/api/tasks`, formData, {
           headers: { Authorization: `Bearer ${token}` },
         });
         toast.success("Task added successfully!");

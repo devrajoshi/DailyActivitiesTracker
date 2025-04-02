@@ -24,7 +24,7 @@ const Activities = () => {
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("API_URL/api/tasks", {
+      const response = await axios.get(`${API_URL}/api/tasks`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTasks(response.data);
@@ -100,7 +100,7 @@ const Activities = () => {
             onClick={async () => {
               try {
                 const token = localStorage.getItem("token");
-                await axios.delete(`API_URL/api/tasks/${taskId}`, {
+                await axios.delete(`${API_URL}/api/tasks/${taskId}`, {
                   headers: { Authorization: `Bearer ${token}` },
                 });
                 toast.dismiss();

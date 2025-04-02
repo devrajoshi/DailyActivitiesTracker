@@ -47,7 +47,7 @@ const LoginForm = () => {
   const onSubmit = async (data) => {
     try {
       // Send login request to the server
-      const response = await axios.post("API_URL/api/users/login", data);
+      const response = await axios.post(`${API_URL}/api/users/login`, data);
 
       // Save the token to localStorage
       localStorage.setItem("token", response.data.token);
