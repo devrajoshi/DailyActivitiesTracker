@@ -153,40 +153,58 @@ const Navbar = () => {
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           {isAuthenticated() ? (
             <>
+              {/* Activities Link */}
               <Link
                 to="/activities"
                 className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setIsMenuOpen(false)} // Close menu on click
               >
                 Activities
               </Link>
+
+              {/* History Link */}
               <Link
                 to="/history"
                 className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setIsMenuOpen(false)} // Close menu on click
               >
                 History
               </Link>
+
               {/* Logout Button for Mobile Menu */}
               {isAuthenticated() && (
-                <LogoutModal onLogout={handleLogout} isMobile={true} />
+                <LogoutModal
+                  onLogout={handleLogout}
+                  isMobile={true}
+                  onClose={() => setIsMenuOpen(false)} // Close menu after logout
+                />
               )}
             </>
           ) : (
             <>
+              {/* Home Link */}
               <Link
                 to="/"
                 className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setIsMenuOpen(false)} // Close menu on click
               >
                 Home
               </Link>
+
+              {/* Register Link */}
               <Link
                 to="/register"
                 className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setIsMenuOpen(false)} // Close menu on click
               >
                 Register
               </Link>
+
+              {/* Login Link */}
               <Link
                 to="/login"
                 className="text-white block hover:bg-indigo-700 px-3 py-2 rounded-md text-base font-medium"
+                onClick={() => setIsMenuOpen(false)} // Close menu on click
               >
                 Login
               </Link>

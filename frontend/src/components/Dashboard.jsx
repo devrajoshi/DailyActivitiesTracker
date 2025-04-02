@@ -3,6 +3,8 @@ import axios from "axios";
 import Modal from "./Modal";
 import AddTaskForm from "./AddTaskForm";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Dashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,12 +16,9 @@ const Dashboard = () => {
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://dailyactivitiestracker-backend.onrender.com/api/tasks",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get("API_URL/api/tasks", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);

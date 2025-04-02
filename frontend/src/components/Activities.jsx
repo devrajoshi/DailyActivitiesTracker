@@ -4,6 +4,8 @@ import { toast } from "react-toastify";
 import Modal from "./Modal"; // Assuming you have a Modal component
 import AddTaskForm from "./AddTaskForm";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Activities = () => {
   const [tasks, setTasks] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,12 +24,9 @@ const Activities = () => {
   const fetchTasks = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "https://dailyactivitiestracker-backend.onrender.com/api/tasks",
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await axios.get("API_URL/api/tasks", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -101,12 +100,9 @@ const Activities = () => {
             onClick={async () => {
               try {
                 const token = localStorage.getItem("token");
-                await axios.delete(
-                  `https://dailyactivitiestracker-backend.onrender.com/api/tasks/${taskId}`,
-                  {
-                    headers: { Authorization: `Bearer ${token}` },
-                  }
-                );
+                await axios.delete(`API_URL/api/tasks/${taskId}`, {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
                 toast.dismiss();
                 toast.success("Task deleted successfully!");
                 fetchTasks(); // Refresh the task list

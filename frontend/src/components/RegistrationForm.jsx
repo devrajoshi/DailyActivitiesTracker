@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthLayout from "./AuthLayout";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 // Validation schema
 const schema = Yup.object().shape({
   fullname: Yup.string()
@@ -42,10 +44,7 @@ const RegistrationForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(
-        "https://dailyactivitiestracker-backend.onrender.com/api/users/register",
-        data
-      );
+      const response = await axios.post("API_URL/api/users/register", data);
       toast.success(
         response.data?.message ||
           "Registration successful! Redirecting to login..."

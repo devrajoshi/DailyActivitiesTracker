@@ -2,6 +2,9 @@
 // import axios from "axios";
 // import { isAuthenticated } from "../utils/auth";
 // import TaskTrendChart from "./TaskTrendChart";
+
+// const API_URL = process.env.REACT_APP_API_URL;
+
 // const History = () => {
 //   const [tasks, setTasks] = useState([]);
 //   const [loading, setLoading] = useState(true);
@@ -17,7 +20,7 @@
 
 //       const token = localStorage.getItem("token");
 //       const response = await axios.get(
-//         "https://dailyactivitiestracker-backend.onrender.com/api/history",
+//         "API_URL/api/history",
 //         {
 //           headers: { Authorization: `Bearer ${token}` },
 //           params: filters,

@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 // import { BiSolidEdit } from "react-icons/bi";
 import Modal from "./Modal"; // Assuming you have this component
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,12 +33,9 @@ const Profile = () => {
     const fetchUserDetails = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(
-          "https://dailyactivitiestracker-backend.onrender.com/api/users/me",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axios.get("API_URL/api/users/me", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         setUser(response.data);
         setEditFormData({
@@ -46,9 +45,7 @@ const Profile = () => {
         });
 
         if (response.data.profilePictureUrl) {
-          setProfilePicture(
-            `https://dailyactivitiestracker-backend.onrender.com/${response.data.profilePictureUrl}`
-          );
+          setProfilePicture(`API_URL/${response.data.profilePictureUrl}`);
         }
       } catch (error) {
         console.error("Error fetching user details:", error);
@@ -77,7 +74,7 @@ const Profile = () => {
 
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        "https://dailyactivitiestracker-backend.onrender.com/api/users/profile/update-profile-picture",
+        "API_URL/api/users/profile/update-profile-picture",
         formData,
         {
           headers: {
@@ -88,7 +85,7 @@ const Profile = () => {
       );
 
       if (response.data.profilePictureUrl) {
-        const updatedUrl = `https://dailyactivitiestracker-backend.onrender.com/${response.data.profilePictureUrl}`;
+        const updatedUrl = `API_URL/${response.data.profilePictureUrl}`;
         setProfilePicture(updatedUrl);
         toast.success("Profile picture updated successfully!");
       }
@@ -106,7 +103,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        "https://dailyactivitiestracker-backend.onrender.com/api/users/profile",
+        "API_URL/api/users/profile",
         editFormData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -136,7 +133,7 @@ const Profile = () => {
 
       // Send password change request to the backend
       const response = await axios.put(
-        "https://dailyactivitiestracker-backend.onrender.com/api/users/profile/change-password",
+        "API_URL/api/users/profile/change-password",
         {
           currentPassword: passwordFormData.currentPassword,
           newPassword: passwordFormData.newPassword,

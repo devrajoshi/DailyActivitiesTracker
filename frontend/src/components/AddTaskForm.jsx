@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
   // Initialize form state based on whether we're editing or adding a task
   const [formData, setFormData] = useState({
@@ -43,23 +45,15 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
 
       if (task) {
         // Update an existing task
-        await axios.put(
-          `https://dailyactivitiestracker-backend.onrender.com/api/tasks/${task._id}`,
-          formData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await axios.put(`API_URL/api/tasks/${task._id}`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         toast.success("Task updated successfully!");
       } else {
         // Create a new task
-        await axios.post(
-          `https://dailyactivitiestracker-backend.onrender.com/api/tasks`,
-          formData,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await axios.post(`API_URL/api/tasks`, formData, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         toast.success("Task added successfully!");
       }
 
