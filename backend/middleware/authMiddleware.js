@@ -14,19 +14,25 @@ export const protect = async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
 
       // Verify token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
       // Attach user to request object excluding password
       req.user = await User.findById(decoded.id).select("-password");
 
       next();
     } catch (error) {
+      // Handle token expiration or invalid tokens
+      if (error.name === "TokenExpiredError") {
+        return res
+          .status(401)
+          .json({ message: "Token expired. Please refresh." });
+      }
       console.error(error);
-      res.status(401).json({ message: "Not authorized, token failed" });
+      return res.status(401).json({ message: "Not authorized, token failed" });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: "Not authorized, no token" });
+    return res.status(401).json({ message: "Not authorized, no token" });
   }
 };

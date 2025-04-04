@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  replace,
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,6 +12,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import PrivateRoute from "./components/PrivateRoute";
 import { isAuthenticated } from "./utils/auth";
+import NotFound from "./components/NotFound";
 
 // Lazy Load Components for Performance Optimization
 const Home = lazy(() => import("./components/Home"));
@@ -31,7 +33,19 @@ function App() {
             fallback={<div className="text-center mt-16">Loading...</div>}
           >
             <Routes>
-              <Route path="/" element={<Home />} />
+              {/* Default Redirect Based on Authentication */}
+              <Route
+                path="/"
+                element={
+                  isAuthenticated() ? (
+                    <Navigate to="/activities" replace />
+                  ) : (
+                    <Home />
+                  )
+                }
+              />
+
+              {/* Public Routes */}
               <Route path="/register" element={<RegistrationForm />} />
               <Route path="/login" element={<LoginForm />} />
 
@@ -61,8 +75,8 @@ function App() {
                 }
               />
 
-              {/* Redirect unknown routes to Home */}
-              <Route path="*" element={<Navigate to="/" />} />
+              {/* Not Found Route */}
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
         </div>

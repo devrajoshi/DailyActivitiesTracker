@@ -143,22 +143,29 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // // Debugging logs (temporary - remove in production)
-    // console.log("Stored hash:", user.password);
-    // console.log("Input password:", password);
-
     // Direct bcrypt comparison (bypassing model method for debugging)
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match result:", isMatch);
-
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    // Generate JWT access token
+    const accessToken = jwt.sign(
+      { id: user._id },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: "15m", // Short-lived access token
+      }
+    );
+
+    // Generate JWT refresh token
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        expiresIn: "7d", // Long-lived refresh token
+      }
+    );
 
     // Return success response with user data (excluding sensitive fields)
     const userData = user.toObject();
@@ -167,7 +174,8 @@ const loginUser = async (req, res) => {
 
     return res.status(200).json({
       message: "Login successful",
-      token,
+      accessToken,
+      refreshToken, // Include refresh token in the response
       user: userData,
     });
   } catch (error) {

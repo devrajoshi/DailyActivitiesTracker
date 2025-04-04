@@ -5,7 +5,18 @@ import LogoutModal from "./LogoutModal"; // Import the LogoutModal component
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // State to track authentication status
   const navigate = useNavigate();
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      const authStatus = await isAuthenticated();
+      setIsLoggedIn(authStatus); // Update state with authentication status
+    };
+
+    checkAuth();
+  }, []); // Run only once on component mount
 
   // Toggle mobile menu
   const toggleMenu = () => {
@@ -14,7 +25,8 @@ const Navbar = () => {
 
   // Handle Logout
   const handleLogout = () => {
-    logout(); // Clear token and log out the user
+    logout(); // Clear accessToken and log out the user
+    setIsLoggedIn(false); // Update state to reflect logged-out status
     navigate("/login"); // Redirect to login page
   };
 
@@ -25,13 +37,13 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="text-white text-xl font-bold">
-              Routine Tracker
+              Progress Tracker
             </Link>
           </div>
 
           {/* Navigation Links (Desktop View) */}
           <div className="hidden md:flex space-x-4">
-            {isAuthenticated() ? (
+            {isLoggedIn ? (
               <>
                 <Link
                   to="/activities"
@@ -73,7 +85,7 @@ const Navbar = () => {
           {/* Right aligned Profile icon */}
           <div className="flex items-center space-x-1 md:space-x-4">
             {/* Profile Icon */}
-            {isAuthenticated() && (
+            {isLoggedIn && (
               <Link
                 to="/profile"
                 onClick={() => setIsMenuOpen(false)} // Close menu on click
@@ -97,7 +109,7 @@ const Navbar = () => {
             )}
 
             {/* Logout Modal (Shown only on medium and large screens) */}
-            {isAuthenticated() && (
+            {isLoggedIn && (
               <div className="hidden md:block">
                 <LogoutModal onLogout={handleLogout} />
               </div>
@@ -152,7 +164,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div className={`${isMenuOpen ? "block" : "hidden"} md:hidden`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-          {isAuthenticated() ? (
+          {isLoggedIn ? (
             <>
               {/* Activities Link */}
               <Link
@@ -173,7 +185,7 @@ const Navbar = () => {
               </Link>
 
               {/* Logout Button for Mobile Menu */}
-              {isAuthenticated() && (
+              {isLoggedIn && (
                 <LogoutModal
                   onLogout={handleLogout}
                   isMobile={true}

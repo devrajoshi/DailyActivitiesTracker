@@ -3,6 +3,8 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Modal from "./Modal"; // Assuming you have a Modal component
 import AddTaskForm from "./AddTaskForm";
+import { refreshAccessToken } from "../utils/auth"; // Import the refreshAccessToken function
+import axiosInstance from "../utils/axiosInstance"; // Import the Axios instance
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -23,10 +25,17 @@ const Activities = () => {
   // Fetch tasks from the backend
   const fetchTasks = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_URL}/api/tasks`, {
-        headers: { Authorization: `Bearer ${token}` },
+      let accessToken = localStorage.getItem("accessToken");
+
+      // If access accessToken is missing or invalid, attempt to refresh it
+      if (!accessToken) {
+        accessToken = await refreshAccessToken();
+      }
+
+      const response = await axiosInstance.get(`${API_URL}/api/tasks`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
+
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -78,7 +87,6 @@ const Activities = () => {
       start_time: formatDateTimeLocal(task.start_time),
       end_time: formatDateTimeLocal(task.end_time),
     };
-    // console.log("Editing task with ID:", task._id, formattedTask); // Debugging
     setSelectedTask(formattedTask); // Pass the formatted task to edit
     setIsModalOpen(true);
   };
@@ -99,9 +107,9 @@ const Activities = () => {
           <button
             onClick={async () => {
               try {
-                const token = localStorage.getItem("token");
+                const accessToken = localStorage.getItem("accessToken");
                 await axios.delete(`${API_URL}/api/tasks/${taskId}`, {
-                  headers: { Authorization: `Bearer ${token}` },
+                  headers: { Authorization: `Bearer ${accessToken}` },
                 });
                 toast.dismiss();
                 toast.success("Task deleted successfully!");

@@ -48,9 +48,11 @@ const LoginForm = () => {
     try {
       // Send login request to the server
       const response = await axios.post(`${API_URL}/api/users/login`, data);
+      const { accessToken, refreshToken } = response.data; // Destructure tokens from response
 
-      // Save the token to localStorage
-      localStorage.setItem("token", response.data.token);
+      // Save the accessToken to localStorage
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
 
       // Show success toast
       toast.success("Login successful!");

@@ -18,11 +18,11 @@
 //     try {
 //       setLoading(true);
 
-//       const token = localStorage.getItem("token");
+//       const accessToken = localStorage.getItem("accessToken");
 //       const response = await axios.get(
 //         `${API_URL}/api/history`,
 //         {
-//           headers: { Authorization: `Bearer ${token}` },
+//           headers: { Authorization: `Bearer ${accessToken}` },
 //           params: filters,
 //         }
 //       );

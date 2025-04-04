@@ -12,7 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 // Validation schema
 const schema = Yup.object().shape({
   fullname: Yup.string()
-    .min(6, "Name must be at least 4 characters")
+    .min(6, "Name must be at least 6 characters")
     .required("Name is required"),
   username: Yup.string().required("Username is required"),
   email: Yup.string()

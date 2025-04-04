@@ -41,18 +41,18 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem("token");
+      const accessToken = localStorage.getItem("accessToken");
 
       if (task) {
         // Update an existing task
         await axios.put(`${API_URL}/api/tasks/${task._id}`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
         toast.success("Task updated successfully!");
       } else {
         // Create a new task
         await axios.post(`${API_URL}/api/tasks`, formData, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
         toast.success("Task added successfully!");
       }

@@ -3,8 +3,7 @@ import axios from "axios";
 import { isAuthenticated } from "../utils/auth";
 import { FaCameraRetro } from "react-icons/fa";
 import { toast } from "react-toastify";
-// import { BiSolidEdit } from "react-icons/bi";
-import Modal from "./Modal"; // Assuming you have this component
+import Modal from "./Modal";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,24 +27,23 @@ const Profile = () => {
     confirmPassword: "",
   });
 
-  // Fetch user details from backend
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${API_URL}/api/users/me`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const accessToken = localStorage.getItem("accessToken");
+        const { data } = await axios.get(`${API_URL}/api/users/me`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
 
-        setUser(response.data);
+        setUser(data);
         setEditFormData({
-          fullname: response.data.fullname || "",
-          username: response.data.username || "",
-          email: response.data.email || "",
+          fullname: data.fullname || "",
+          username: data.username || "",
+          email: data.email || "",
         });
 
-        if (response.data.profilePictureUrl) {
-          setProfilePicture(`${API_URL}/${response.data.profilePictureUrl}`);
+        if (data.profilePictureUrl) {
+          setProfilePicture(`${API_URL}/${data.profilePictureUrl}`);
         }
       } catch (error) {
         console.error("Error fetching user details:", error);
@@ -54,12 +52,9 @@ const Profile = () => {
       }
     };
 
-    if (isAuthenticated()) {
-      fetchUserDetails();
-    }
+    if (isAuthenticated()) fetchUserDetails();
   }, []);
 
-  // Handle profile picture change
   const handleProfileChange = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -72,21 +67,20 @@ const Profile = () => {
       const formData = new FormData();
       formData.append("profilePicture", file);
 
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
+      const accessToken = localStorage.getItem("accessToken");
+      const { data } = await axios.post(
         `${API_URL}/api/users/profile/update-profile-picture`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
 
-      if (response.data.profilePictureUrl) {
-        const updatedUrl = `${API_URL}/${response.data.profilePictureUrl}`;
-        setProfilePicture(updatedUrl);
+      if (data.profilePictureUrl) {
+        setProfilePicture(`${API_URL}/${data.profilePictureUrl}`);
         toast.success("Profile picture updated successfully!");
       }
     } catch (error) {
@@ -97,100 +91,74 @@ const Profile = () => {
     }
   };
 
-  // Handle Edit Profile form submission
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
+  const handleFormSubmit = async (
+    url,
+    formData,
+    successMessage,
+    closeModal
+  ) => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `${API_URL}/api/users/profile`,
-        editFormData,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const accessToken = localStorage.getItem("accessToken");
+      const { data } = await axios.put(url, formData, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
 
-      setUser(response.data);
-      setIsEditModalOpen(false);
-      toast.success("Profile updated successfully!");
+      setUser(data);
+      closeModal();
+      toast.success(successMessage);
     } catch (error) {
-      console.error("Error updating profile:", error);
-      toast.error(error.response?.data?.message || "Failed to update profile");
+      console.error("Error submitting form:", error);
+      toast.error(error.response?.data?.message || "Failed to submit form");
     }
   };
 
-  // Handle Change Password form submission
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate new password and confirmation
     if (passwordFormData.newPassword !== passwordFormData.confirmPassword) {
       return toast.error("New password and confirmation do not match");
     }
 
     try {
-      const token = localStorage.getItem("token");
-
-      // Send password change request to the backend
-      const response = await axios.put(
+      const accessToken = localStorage.getItem("accessToken");
+      const { data } = await axios.put(
         `${API_URL}/api/users/profile/change-password`,
         {
           currentPassword: passwordFormData.currentPassword,
           newPassword: passwordFormData.newPassword,
         },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${accessToken}` },
         }
       );
 
-      // Reset form data
       setPasswordFormData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
-
-      // Close the modal
       setIsPasswordModalOpen(false);
-
-      // Show success toast
       toast.success("Password changed successfully!");
 
-      // Check if re-login is required
-      if (response.data.requireReLogin) {
-        // Show logout notification
+      if (data.requireReLogin) {
         toast.info(
-          "Your account is being logged out for security reasons... \n Please login with the new password."
+          "Your account is being logged out for security reasons. Please login with the new password."
         );
-
-        // Clear token from localStorage
-        localStorage.removeItem("token");
-
-        // Redirect to login page after a short delay
-        setTimeout(() => {
-          window.location.href = "/login"; // Force full-page reload
-        }, 4000); // Delay for 2 seconds to allow the user to read the toast message
+        localStorage.removeItem("accessToken");
+        setTimeout(() => (window.location.href = "/login"), 4000);
       }
     } catch (error) {
       console.error("Error changing password:", error);
-
-      // Show error toast
       toast.error(error.response?.data?.message || "Failed to change password");
     }
   };
 
-  if (loading) {
-    return <p className="text-center">Loading...</p>;
-  }
-
-  if (!user) {
-    return <p className="text-center">Unable to load user details.</p>;
-  }
+  if (loading) return <p className="text-center">Loading...</p>;
+  if (!user) return <p className="text-center">Unable to load user details.</p>;
 
   return (
-    <div className=" w-9/10 md:w-3/4 max-w-md mx-auto mt-6 p-4 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
+    <div className="w-9/10 md:w-3/4 max-w-md mx-auto mt-6 p-4 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
       <div className="flex flex-col items-center p-2">
-        {/* Profile Picture */}
         <div>
           <input
             type="file"
@@ -214,34 +182,22 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* User Details */}
-        <div className=" flex-col items-center space-y-4">
-          <div>
-            <p className="text-sm font-medium text-gray-500">Full Name</p>
-            <p className="text-lg font-semibold text-gray-900">
-              {user.fullname || "Not provided"}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Username</p>
-            <p className="text-lg font-semibold text-gray-900">
-              {user.username}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Email</p>
-            <p className="text-lg font-semibold text-gray-900">{user.email}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-gray-500">Member Since</p>
-            <p className="text-lg font-semibold text-gray-900">
-              {new Date(user.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-          {/* </div>
+        <div className="flex-col items-center space-y-4">
+          {["fullname", "username", "email", "createdAt"].map((field) => (
+            <div key={field}>
+              <p className="text-sm font-medium text-gray-500">
+                {field === "createdAt"
+                  ? "Member Since"
+                  : field.charAt(0).toUpperCase() + field.slice(1)}
+              </p>
+              <p className="text-lg font-semibold text-gray-900">
+                {field === "createdAt"
+                  ? new Date(user[field]).toLocaleDateString()
+                  : user[field] || "Not provided"}
+              </p>
+            </div>
+          ))}
 
-        <div className="flex justify-center items-center p-4 mt-2"> */}
-          {/* Action Buttons */}
           <div className="flex items-center mt-10">
             <button
               onClick={() => setIsEditModalOpen(true)}
@@ -259,56 +215,41 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* Loading Indicator */}
       {uploading && (
         <p className="text-center mt-4 text-indigo-600">
           Uploading profile picture...
         </p>
       )}
 
-      {/* Edit Profile Modal */}
       <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
         <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
-        <form onSubmit={handleEditSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={editFormData.fullname}
-              onChange={(e) =>
-                setEditFormData({ ...editFormData, fullname: e.target.value })
-              }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Username
-            </label>
-            <input
-              type="text"
-              value={editFormData.username}
-              onChange={(e) =>
-                setEditFormData({ ...editFormData, username: e.target.value })
-              }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              value={editFormData.email}
-              onChange={(e) =>
-                setEditFormData({ ...editFormData, email: e.target.value })
-              }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleFormSubmit(
+              `${API_URL}/api/users/profile`,
+              editFormData,
+              "Profile updated successfully!",
+              () => setIsEditModalOpen(false)
+            );
+          }}
+          className="space-y-4"
+        >
+          {["fullname", "username", "email"].map((field) => (
+            <div key={field}>
+              <label className="block text-sm font-medium text-gray-700">
+                {field.charAt(0).toUpperCase() + field.slice(1)}
+              </label>
+              <input
+                type={field === "email" ? "email" : "text"}
+                value={editFormData[field]}
+                onChange={(e) =>
+                  setEditFormData({ ...editFormData, [field]: e.target.value })
+                }
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              />
+            </div>
+          ))}
           <div className="flex justify-end space-x-2">
             <button
               type="button"
@@ -327,61 +268,34 @@ const Profile = () => {
         </form>
       </Modal>
 
-      {/* Change Password Modal */}
       <Modal
         isOpen={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}
       >
         <h2 className="text-xl font-bold mb-4">Change Password</h2>
         <form onSubmit={handlePasswordSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Current Password
-            </label>
-            <input
-              type="password"
-              value={passwordFormData.currentPassword}
-              onChange={(e) =>
-                setPasswordFormData({
-                  ...passwordFormData,
-                  currentPassword: e.target.value,
-                })
-              }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              New Password
-            </label>
-            <input
-              type="password"
-              value={passwordFormData.newPassword}
-              onChange={(e) =>
-                setPasswordFormData({
-                  ...passwordFormData,
-                  newPassword: e.target.value,
-                })
-              }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Confirm New Password
-            </label>
-            <input
-              type="password"
-              value={passwordFormData.confirmPassword}
-              onChange={(e) =>
-                setPasswordFormData({
-                  ...passwordFormData,
-                  confirmPassword: e.target.value,
-                })
-              }
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
+          {["currentPassword", "newPassword", "confirmPassword"].map(
+            (field) => (
+              <div key={field}>
+                <label className="block text-sm font-medium text-gray-700">
+                  {field
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (str) => str.toUpperCase())}
+                </label>
+                <input
+                  type="password"
+                  value={passwordFormData[field]}
+                  onChange={(e) =>
+                    setPasswordFormData({
+                      ...passwordFormData,
+                      [field]: e.target.value,
+                    })
+                  }
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+            )
+          )}
           <div className="flex justify-end space-x-2">
             <button
               type="button"
