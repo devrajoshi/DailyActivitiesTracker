@@ -60,7 +60,7 @@ const LoginForm = () => {
       // Delay redirection to allow the toast to display
       setTimeout(() => {
         window.location.href = "/activities"; // Redirect to activities
-      }, 2000); // 1-second delay
+      }, 2000); // 2-second delay
     } catch (error) {
       // Handle login failure
       toast.error(error.response?.data?.message || "Login failed");

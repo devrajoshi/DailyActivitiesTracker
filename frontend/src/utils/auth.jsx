@@ -12,6 +12,7 @@ const refreshAccessToken = async () => {
       throw new Error("No refresh token found");
     }
 
+    console.log("Sending request to refresh token..."); // Debugging
     const response = await axios.post(
       `${API_URL}/api/auth/refresh-token`,
       { refreshToken },
@@ -20,6 +21,7 @@ const refreshAccessToken = async () => {
       }
     );
 
+    console.log("Response from refresh token endpoint:", response.data); // Debugging
     const { accessToken } = response.data;
     localStorage.setItem("accessToken", accessToken);
     return accessToken;
@@ -29,7 +31,7 @@ const refreshAccessToken = async () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     window.location.href = "/login";
-    throw error; // Re-throw to prevent further execution
+    throw error;
   }
 };
 

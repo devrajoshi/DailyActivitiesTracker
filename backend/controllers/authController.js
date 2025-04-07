@@ -5,11 +5,12 @@ const refreshAccessToken = async (req, res) => {
   const { refreshToken } = req.body;
 
   if (!refreshToken) {
+    console.error("No refresh token provided");
     return res.status(401).json({ message: "No refresh token provided" });
   }
 
   try {
-    // Verify the refresh token
+    console.log("Verifying refresh token..."); // Debugging
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
     // Find the user by ID
@@ -26,9 +27,12 @@ const refreshAccessToken = async (req, res) => {
     return res.status(200).json({ accessToken });
   } catch (error) {
     console.error("Refresh token error:", error);
-    return res
-      .status(401)
-      .json({ message: "Invalid or expired refresh token" });
+
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Refresh token has expired" });
+    } else {
+      return res.status(401).json({ message: "Invalid refresh token" });
+    }
   }
 };
 

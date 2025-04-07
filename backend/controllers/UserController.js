@@ -154,7 +154,8 @@ const loginUser = async (req, res) => {
       { id: user._id },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: "15m", // Short-lived access token
+        // expiresIn: "15m", // Short-lived access token
+        expiresIn: "1m", // for debugging purposes, set to 1 minute
       }
     );
 
@@ -163,7 +164,8 @@ const loginUser = async (req, res) => {
       { id: user._id },
       process.env.REFRESH_TOKEN_SECRET,
       {
-        expiresIn: "7d", // Long-lived refresh token
+        // expiresIn: "7d", // Long-lived refresh token
+        expiresIn: "5m", // for debugging purposes, set to 5 minutes
       }
     );
 

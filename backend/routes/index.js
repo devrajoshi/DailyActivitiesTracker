@@ -2,7 +2,7 @@ import express from "express";
 import UserRouter from "./UserRouter.js";
 import TaskRouter from "./TaskRouter.js";
 import ProfilePictureRouter from "./ProfilePictureRouter.js";
-import { protect } from "../middleware/authMiddleware.js";
+import protect from "../middleware/authMiddleware.js";
 import authRoutes from "./authRoutes.js"; // Import the auth routes
 
 const router = express.Router();
