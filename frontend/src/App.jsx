@@ -75,7 +75,7 @@ function App() {
                 }
               />
 
-              {/* Not Found Route */}
+              {/* Fallback Route */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

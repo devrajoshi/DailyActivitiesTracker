@@ -1,127 +1,179 @@
-// import React, { useEffect, useState } from "react";
-// import axios from "axios";
-// import { isAuthenticated } from "../utils/auth";
-// import TaskTrendChart from "./TaskTrendChart";
+import React, { useState } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+} from "recharts";
+import { Switch } from "@headlessui/react";
 
-// const API_URL = import.meta.env.VITE_API_URL;;
+const COLORS = {
+  green: "#34C759",
+  yellow: "#FFCC00",
+  red: "#FF3B30",
+};
 
-// const History = () => {
-//   const [tasks, setTasks] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [filters, setFilters] = useState({
-//     fromDate: "",
-//     toDate: "",
-//   });
+const sampleData = Array.from({ length: 30 }, (_, i) => ({
+  date: `Day ${i + 1}`,
+  totalTasks: Math.floor(Math.random() * 10) + 5,
+  completedTasks: Math.floor(Math.random() * 10),
+}));
 
-//   // Fetch history from the backend
-//   const fetchHistory = async () => {
-//     try {
-//       setLoading(true);
+const Dashboard = () => {
+  const [view, setView] = useState("monthly"); // 'weekly' or 'monthly'
 
-//       const accessToken = localStorage.getItem("accessToken");
-//       const response = await axios.get(
-//         `${API_URL}/api/history`,
-//         {
-//           headers: { Authorization: `Bearer ${accessToken}` },
-//           params: filters,
-//         }
-//       );
+  const calculateCompletionPercentage = (data) =>
+    data.map((item) => ({
+      ...item,
+      completionPercentage: (
+        (item.completedTasks / item.totalTasks) *
+        100
+      ).toFixed(2),
+    }));
 
-//       setTasks(response.data);
-//     } catch (error) {
-//       console.error("Error fetching history:", error);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  const filteredData = view === "weekly" ? sampleData.slice(-7) : sampleData;
+  const processedData = calculateCompletionPercentage(filteredData);
 
-//   useEffect(() => {
-//     if (isAuthenticated()) {
-//       fetchHistory();
-//     }
-//   }, []);
+  const getFillColor = (percentage) => {
+    if (percentage > 80) return COLORS.green;
+    if (percentage >= 50 && percentage <= 80) return COLORS.yellow;
+    return COLORS.red;
+  };
 
-//   // Handle date filter changes
-//   const handleFilterChange = (e) => {
-//     const { name, value } = e.target;
-//     setFilters((prevFilters) => ({
-//       ...prevFilters,
-//       [name]: value,
-//     }));
-//   };
+  const averageCompletionRate =
+    processedData.reduce(
+      (sum, item) => sum + parseFloat(item.completionPercentage),
+      0
+    ) / processedData.length;
 
-//   // Apply filters and fetch updated history
-//   const applyFilters = () => {
-//     fetchHistory();
-//   };
+  return (
+    <div className="p-6 bg-gray-100 min-h-screen">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">
+          Productivity Dashboard
+        </h1>
+        <Switch.Group>
+          <div className="flex items-center">
+            <Switch.Label className="mr-2 text-gray-700">Weekly</Switch.Label>
+            <Switch
+              checked={view === "weekly"}
+              onChange={() => setView(view === "weekly" ? "monthly" : "weekly")}
+              className={`${
+                view === "weekly" ? "bg-blue-600" : "bg-gray-300"
+              } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+            >
+              <span
+                className={`${
+                  view === "weekly" ? "translate-x-6" : "translate-x-1"
+                } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              />
+            </Switch>
+            <Switch.Label className="ml-2 text-gray-700">Monthly</Switch.Label>
+          </div>
+        </Switch.Group>
+      </div>
 
-//   if (loading) {
-//     return <p className="text-center">Loading...</p>;
-//   }
+      {/* Line Chart */}
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Daily Completion Trends</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={processedData}>
+            <XAxis dataKey="date" />
+            <YAxis domain={[0, 100]} />
+            <Tooltip
+              content={({ payload }) => {
+                if (!payload || payload.length === 0) return null;
+                const {
+                  date,
+                  totalTasks,
+                  completedTasks,
+                  completionPercentage,
+                } = payload[0].payload;
+                return (
+                  <div className="bg-white p-2 rounded shadow">
+                    <p>{date}</p>
+                    <p>Total Tasks: {totalTasks}</p>
+                    <p>Completed Tasks: {completedTasks}</p>
+                    <p>Completion: {completionPercentage}%</p>
+                  </div>
+                );
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="completionPercentage"
+              stroke="#8884d8"
+              strokeWidth={2}
+              dot={(props) => {
+                const { cx, cy, value } = props;
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={6}
+                    fill={getFillColor(value)}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
+                );
+              }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
-//   return (
-//     <div className="w-9/10 md:w-3/4 max-w-2xl mx-auto m-6 p-6 bg-white rounded-lg shadow-[0_20px_50px_rgba(8,_112,_184,_0.7)]">
-//       {/* Filters */}
-//       <div className="mb-6">
-//         <h2 className="text-xl font-semibold text-gray-900 mb-4">
-//           Filter History
-//         </h2>
-//         <div className="flex space-x-4">
-//           <input
-//             type="date"
-//             name="fromDate"
-//             value={filters.fromDate}
-//             onChange={handleFilterChange}
-//             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-//           />
-//           <input
-//             type="date"
-//             name="toDate"
-//             value={filters.toDate}
-//             onChange={handleFilterChange}
-//             className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-//           />
-//           <button
-//             onClick={applyFilters}
-//             className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-//           >
-//             Apply Filters
-//           </button>
-//         </div>
-//       </div>
+      {/* Heatmap/Bar Chart */}
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Daily Task Load</h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={processedData}>
+            <XAxis dataKey="date" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="totalTasks" fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
 
-//       {/* History List */}
-//       <div>
-//         <h2 className="text-xl font-semibold text-gray-900 mb-4">
-//           Task History
-//         </h2>
+      {/* Summary Donut Chart */}
+      <div className="bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Summary</h2>
+        <ResponsiveContainer width="100%" height={200}>
+          <PieChart>
+            <Pie
+              data={[
+                { name: "Completed", value: averageCompletionRate },
+                { name: "Pending", value: 100 - averageCompletionRate },
+              ]}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {[{ fill: COLORS.green }, { fill: COLORS.red }].map(
+                (color, index) => (
+                  <Cell key={`cell-${index}`} fill={color.fill} />
+                )
+              )}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        <p className="text-center mt-2">
+          Avg Completion Rate: {averageCompletionRate.toFixed(2)}%
+        </p>
+      </div>
+    </div>
+  );
+};
 
-//         {/* Task Trend Chart */}
-//         <TaskTrendChart />
-
-//         {tasks.length === 0 ? (
-//           <p className="text-center text-gray-500">No tasks found.</p>
-//         ) : (
-//           <ul className="space-y-4">
-//             {tasks.map((task) => (
-//               <li
-//                 key={task._id}
-//                 className="p-4 bg-gray-100 rounded-md"
-//               >
-//                 <p className="font-semibold text-gray-900">
-//                   {task.title}
-//                 </p>
-//                 <p className="text-sm text-gray-500">
-//                   Status: {task.status} | Created:{" "}
-//                   {new Date(task.createdAt).toLocaleDateString()}
-//                 </p>
-//               </li>
-//             ))}
-//           </ul>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default History;
+export default Dashboard;
