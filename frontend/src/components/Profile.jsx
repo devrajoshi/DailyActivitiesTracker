@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { isAuthenticated } from "../utils/auth";
 import { FaCameraRetro } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -31,7 +31,7 @@ const Profile = () => {
     const fetchUserDetails = async () => {
       try {
         const accessToken = localStorage.getItem("accessToken");
-        const { data } = await axios.get(`${API_URL}/api/users/me`, {
+        const { data } = await axiosInstance.get(`${API_URL}/api/users/me`, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
 
@@ -68,7 +68,7 @@ const Profile = () => {
       formData.append("profilePicture", file);
 
       const accessToken = localStorage.getItem("accessToken");
-      const { data } = await axios.post(
+      const { data } = await axiosInstance.post(
         `${API_URL}/api/users/profile/update-profile-picture`,
         formData,
         {
@@ -99,7 +99,7 @@ const Profile = () => {
   ) => {
     try {
       const accessToken = localStorage.getItem("accessToken");
-      const { data } = await axios.put(url, formData, {
+      const { data } = await axiosInstance.put(url, formData, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
@@ -121,7 +121,7 @@ const Profile = () => {
 
     try {
       const accessToken = localStorage.getItem("accessToken");
-      const { data } = await axios.put(
+      const { data } = await axiosInstance.put(
         `${API_URL}/api/users/profile/change-password`,
         {
           currentPassword: passwordFormData.currentPassword,

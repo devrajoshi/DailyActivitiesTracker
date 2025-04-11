@@ -238,39 +238,42 @@ const deleteTask = async (req, res) => {
 
 const markTaskAsCompleted = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { date } = req.body;
+    const { _id } = req.params; // Task ID
+    const { date } = req.body; // Date for which the task is marked as completed
+    const userId = req.user._id; // Authenticated user's ID from authMiddleware
 
-    // Check if the task exists
-    const task = await Task.findById(id);
+    // Step 1: Check if the task exists
+    const task = await Task.findById(_id);
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
-    // Check if the task is already marked as completed for the given date
+    // Step 2: Check if the task is already marked as completed for the given date
     const existingCompletion = await TaskCompletion.findOne({
-      task_id: id,
-      user_id: req.user._id,
+      task_id: _id,
+      user_id: userId,
       date,
     });
 
     if (existingCompletion && existingCompletion.status === "Completed") {
       return res
         .status(400)
-        .json({ message: "Task already marked as completed" });
+        .json({ message: "Task already marked as completed for this date" });
     }
 
-    // Create or update the completion record
+    // Step 3: Create or update the completion record
     const completionRecord = await TaskCompletion.findOneAndUpdate(
-      { task_id: id, user_id: req.user._id, date },
+      { task_id: _id, user_id: userId, date },
       {
         status: "Completed",
-        completed_at: Date.now(),
+        completed_at: new Date(),
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true } // Create if it doesn't exist, otherwise update
     );
 
-    res.status(200).json(completionRecord);
+    res
+      .status(200)
+      .json({ message: "Task marked as completed", completionRecord });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });

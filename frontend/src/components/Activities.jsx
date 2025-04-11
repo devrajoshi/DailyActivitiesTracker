@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance"; // Import the Axios instance
 import { toast } from "react-toastify";
 import Modal from "./Modal"; // Assuming you have a Modal component
 import AddTaskForm from "./AddTaskForm";
 import { refreshAccessToken } from "../utils/auth"; // Import the refreshAccessToken function
-import axiosInstance from "../utils/axiosInstance"; // Import the Axios instance
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -108,7 +107,7 @@ const Activities = () => {
             onClick={async () => {
               try {
                 const accessToken = localStorage.getItem("accessToken");
-                await axios.delete(`${API_URL}/api/tasks/${taskId}`, {
+                await axiosInstance.delete(`${API_URL}/api/tasks/${taskId}`, {
                   headers: { Authorization: `Bearer ${accessToken}` },
                 });
                 toast.dismiss();

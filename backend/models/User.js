@@ -33,7 +33,15 @@ const userSchema = new mongoose.Schema(
       minlength: [6, "Password must be at least 6 characters"],
       select: false, // Exclude password from query results by default
     },
+    refreshToken: {
+      type: String,
+      select: false, // Exclude refreshToken from query results by default
+    },
     profilePictureUrl: { type: String }, // Store the profile picture URL
+    tasksCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true } // Automatically manages `createdAt` and `updatedAt`
 );
@@ -62,6 +70,32 @@ userSchema.pre("save", async function (next) {
 // Method to compare passwords during login
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password); // No try-catch needed
+};
+
+userSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      username: this.username,
+      fullName: this.fullName,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+    }
+  );
+};
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    }
+  );
 };
 
 // Create and export the User model

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance"; // Import the Axios instance
 import Modal from "./Modal";
 import AddTaskForm from "./AddTaskForm";
 
@@ -16,7 +16,7 @@ const Dashboard = () => {
   const fetchTasks = async () => {
     try {
       const accessToken = localStorage.getItem("accessToken");
-      const response = await axios.get(`${API_URL}/api/tasks`, {
+      const response = await axiosInstance.get(`${API_URL}/api/tasks`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       setTasks(response.data);

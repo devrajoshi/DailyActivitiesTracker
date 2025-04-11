@@ -18,11 +18,8 @@ const taskCompletionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Completed", "Not Completed"],
-      default: "Not Completed",
-    },
-    completed_at: {
-      type: Date,
+      enum: ["Completed", "almostCompleted", "halfCompleted", "notCompleted"],
+      default: "notCompleted",
     },
   },
   { timestamps: true }

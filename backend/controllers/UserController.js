@@ -1,9 +1,7 @@
 import User from "../models/User.js";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-
-dotenv.config();
+import ApiError from "../utils/ApiError.js"; // Custom error handler
+import ApiResponse from "../utils/ApiResponse.js"; // Custom success response
 
 const getUsers = async (req, res) => {
   try {
@@ -26,7 +24,7 @@ const getSpecificUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
+    console.log("User details:", user); // Debugging line to check user details
     // Send the user details as a response
     res.status(200).json(user);
   } catch (error) {
@@ -137,56 +135,89 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find the user by email (including the password field)
-    const user = await User.findOne({ email }).select("+password");
+    // Validate input
+    if (!email || !password) {
+      throw new ApiError(400, "Email and password are required");
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email }).select("+password"); // Include password field
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      throw new ApiError(401, "Invalid email or password");
     }
 
-    // Direct bcrypt comparison (bypassing model method for debugging)
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    // Compare passwords
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      throw new ApiError(401, "Invalid email or password");
     }
 
-    // Generate JWT access token
-    const accessToken = jwt.sign(
-      { id: user._id },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "15m", // Short-lived access token
-        // expiresIn: "1m", // for debugging purposes, set to 1 minute
-      }
-    );
+    // Generate access and refresh tokens
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
 
-    // Generate JWT refresh token
-    const refreshToken = jwt.sign(
-      { id: user._id },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "7d", // Long-lived refresh token
-        // expiresIn: "5m", // for debugging purposes, set to 5 minutes
-      }
-    );
+    // Save the refresh token in the database
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false }); // Skip validation to avoid re-hashing the password
 
-    // Return success response with user data (excluding sensitive fields)
-    const userData = user.toObject();
-    delete userData.password;
-    delete userData.__v;
+    // Set cookies with HttpOnly and Secure flags
+    const options = {
+      httpOnly: true, // Prevent JavaScript access
+      secure: process.env.NODE_ENV === "production", // Only send over HTTPS in production
+      sameSite: "strict", // Prevent CSRF attacks
+    };
 
-    return res.status(200).json({
-      message: "Login successful",
-      accessToken,
-      refreshToken, // Include refresh token in the response
-      user: userData,
-    });
+    // Send tokens in cookies
+    return res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          {
+            user: {
+              _id: user._id,
+              username: user.username,
+              email: user.email,
+              profilePictureUrl: user.profilePictureUrl,
+            },
+          },
+          "Login successful"
+        )
+      );
   } catch (error) {
     console.error("Login error:", error);
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    });
+    throw new ApiError(
+      error.statusCode || 500,
+      error.message || "Server error"
+    );
   }
+};
+
+const logoutUser = async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $unset: {
+        refreshToken: 1, // this removes the field from document
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged Out"));
 };
 
 export {
@@ -196,4 +227,5 @@ export {
   changePassword,
   registerUser,
   loginUser,
+  logoutUser,
 };

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthLayout from "./AuthLayout";
@@ -44,7 +44,10 @@ const RegistrationForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const response = await axios.post(`${API_URL}/api/users/register`, data);
+      const response = await axiosInstance.post(
+        `${API_URL}/api/users/register`,
+        data
+      );
       toast.success(
         response.data?.message ||
           "Registration successful! Redirecting to login..."

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance"; // Import the Axios instance
 import { toast } from "react-toastify";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -45,13 +45,13 @@ const AddTaskForm = ({ onClose, onTaskAdded, task }) => {
 
       if (task) {
         // Update an existing task
-        await axios.put(`${API_URL}/api/tasks/${task._id}`, formData, {
+        await axiosInstance.put(`${API_URL}/api/tasks/${task._id}`, formData, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         toast.success("Task updated successfully!");
       } else {
         // Create a new task
-        await axios.post(`${API_URL}/api/tasks`, formData, {
+        await axiosInstance.post(`${API_URL}/api/tasks`, formData, {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         toast.success("Task added successfully!");

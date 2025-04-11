@@ -12,7 +12,7 @@ const protect = async (req, res, next) => {
     try {
       // Extract token
       token = req.headers.authorization.split(" ")[1];
-
+      console.info("Token:", token);
       // Verify token
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
@@ -22,12 +22,12 @@ const protect = async (req, res, next) => {
       next();
     } catch (error) {
       // Handle token expiration or invalid tokens
+      console.error(error);
       if (error.name === "TokenExpiredError") {
         return res
           .status(401)
           .json({ message: "Token expired. Please refresh." });
       }
-      console.error(error);
       return res.status(401).json({ message: "Not authorized, token failed" });
     }
   }

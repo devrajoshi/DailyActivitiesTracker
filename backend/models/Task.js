@@ -34,6 +34,10 @@ const taskSchema = new mongoose.Schema(
       enum: ["Daily", "Weekly", "Custom", "None"],
       default: "Daily",
     },
+    isCompleted: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

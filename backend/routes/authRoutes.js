@@ -1,9 +1,8 @@
 import express from "express";
-import refreshAccessToken from "../controllers/authController.js";
-import protect from "../middleware/authMiddleware.js"; // Middleware to protect routes
+import generateAccessAndReferenceToken from "../controllers/authController.js";
 
 const router = express.Router();
 
-router.route("/refresh-token").post(protect, refreshAccessToken); // Refresh authentication token
+router.route("/refresh-token").post(generateAccessAndReferenceToken);
 
 export default router;

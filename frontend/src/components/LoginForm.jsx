@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
-import axios from "axios";
+import axiosInstance from "../utils/axiosInstance";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AuthLayout from "./AuthLayout";
@@ -47,7 +47,10 @@ const LoginForm = () => {
   const onSubmit = async (data) => {
     try {
       // Send login request to the server
-      const response = await axios.post(`${API_URL}/api/users/login`, data);
+      const response = await axiosInstance.post(
+        `${API_URL}/api/users/login`,
+        data
+      );
       const { accessToken, refreshToken } = response.data; // Destructure tokens from response
 
       // Save the accessToken to localStorage

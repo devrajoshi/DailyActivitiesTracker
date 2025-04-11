@@ -1,19 +1,18 @@
-import axios from "axios";
-import { jwtDecode } from "jwt-decode"; // Corrected import statement
+import { jwtDecode } from "jwt-decode";
 import { toast } from "react-toastify";
-
+import axiosInstance from "./axiosInstance";
 const API_URL = import.meta.env.VITE_API_URL;
 
 // Function to refresh the access token
 const refreshAccessToken = async () => {
   try {
     const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) {
-      throw new Error("No refresh token found");
-    }
+    // if (!refreshToken) {
+    //   throw new Error("No refresh token found");
+    // }
 
     console.log("Sending request to refresh token..."); // Debugging
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${API_URL}/api/auth/refresh-token`,
       { refreshToken },
       {
@@ -42,6 +41,7 @@ const isAuthenticated = async () => {
     if (!accessToken) return false;
 
     const decoded = jwtDecode(accessToken);
+    // console.log("Decoded token:", decoded); // Debugging
 
     // Check token expiration
     if (decoded.exp * 1000 < Date.now()) {
@@ -60,6 +60,30 @@ const isAuthenticated = async () => {
   }
 };
 
+// Function to retrieve the user ID from the access token
+// Function to decode the token and retrieve the userId
+const getUserIdFromToken = () => {
+  try {
+    const accessToken = localStorage.getItem("accessToken");
+    if (!accessToken) {
+      throw new Error("No access token found");
+    }
+
+    const decoded = jwtDecode(accessToken);
+    // console.log("Decoded token:", decoded); // Debugging
+
+    // Check token expiration
+    if (decoded.exp * 1000 < Date.now()) {
+      throw new Error("Access token expired");
+    }
+
+    return decoded.userId; // Extract userId from the token
+  } catch (error) {
+    console.error("Failed to retrieve userId from token:", error);
+    throw error;
+  }
+};
+
 // Function to log out the user
 const logout = () => {
   localStorage.removeItem("accessToken");
@@ -67,4 +91,4 @@ const logout = () => {
   window.location.href = "/login";
 };
 
-export { refreshAccessToken, isAuthenticated, logout };
+export { refreshAccessToken, isAuthenticated, getUserIdFromToken, logout };

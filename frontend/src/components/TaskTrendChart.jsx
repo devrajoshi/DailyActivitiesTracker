@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import axiosInstance from "../utils/axiosInstance";
+import axiosInstance from "../utils/axiosInstance";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -10,7 +10,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import axios from "axios";
 
 // Register Chart.js components
 ChartJS.register(
@@ -32,7 +31,7 @@ const TaskTrendChart = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get("/api/history");
+        const response = await axiosInstance.get("/api/history");
         const history = response.data.history;
 
         // Prepare chart data
